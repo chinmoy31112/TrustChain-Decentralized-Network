@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Dashboard — CharityFund</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">💚</div>
+      <span class="brand-text">CharityFund</span>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html"            class="nav-link">Home</a>
+      <a href="campaigns.html"        class="nav-link">Campaigns</a>
+      <a href="create-campaign.html"  class="nav-link">Start Campaign</a>
+      <a href="dashboard.html"        class="nav-link active">Dashboard</a>
+    </div>
+    <div class="navbar-right">
+      <div class="wallet-info">
+        <span class="wallet-dot disconnected"></span>
+        <span data-wallet-addr>Not connected</span>
+      </div>
+      <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
+    </div>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <div class="container">
+      <p class="section-eyebrow">Your Activity</p>
+      <h1 class="section-title">My <span class="gradient-text">Dashboard</span></h1>
+    </div>
+  </header>
+
+  <!-- MAIN -->
+  <main style="padding-bottom:5rem">
+    <div class="container">
+
+      <!-- Connect Prompt -->
+      <div id="connectPrompt" class="card" style="padding:3rem;text-align:center;max-width:480px;margin:0 auto 2rem">
+        <div style="font-size:3rem;margin-bottom:1rem">🦊</div>
+        <h3 style="margin-bottom:0.5rem">Connect to View Dashboard</h3>
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">
+          Connect your MetaMask wallet to see your donation history, campaigns, and NFT receipts.
+        </p>
+        <button class="btn btn-primary" data-connect-btn>Connect MetaMask</button>
+      </div>
+
+      <!-- Dashboard Content (shown when connected) -->
+      <div id="dashContent" class="hidden">
+
+        <!-- Profile Card -->
+        <div class="card card-gradient" style="padding:1.75rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+          <div style="width:64px;height:64px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0" id="myAvatar">
+            ?
+          </div>
+          <div style="flex:1">
+            <div style="font-size:1.1rem;font-weight:700;font-family:monospace" id="myAddrDisplay">—</div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.4rem;flex-wrap:wrap">
+              <span id="myBadge" class="badge badge-gray">Donor</span>
+              <span class="badge badge-purple" id="myNFTBadge">0 NFTs</span>
+            </div>
+          </div>
+          <div style="display:flex;gap:2rem;flex-wrap:wrap">
+            <div style="text-align:center">
+              <div style="font-size:1.5rem;font-weight:900;color:var(--teal)" id="myTotalDonated">—</div>
+              <div style="font-size:0.75rem;color:var(--text-secondary)">Total Donated</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:1.5rem;font-weight:900" id="myDonationCount">—</div>
+              <div style="font-size:0.75rem;color:var(--text-secondary)">Donations</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:1.5rem;font-weight:900" id="myNFTCount">0</div>
+              <div style="font-size:0.75rem;color:var(--text-secondary)">NFT Receipts</div>
+            </div>
+          </div>
+          <div style="margin-left:auto">
+            <button class="btn btn-outline btn-sm" onclick="utils.copy(W3.address)">📋 Copy Address</button>
+          </div>
+        </div>
+
+        <!-- My Content Grid -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:3rem">
+
+          <!-- My Campaigns -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+              <h3>My Campaigns</h3>
+              <a href="create-campaign.html" class="btn btn-primary btn-sm">+ Create</a>
+            </div>
+            <div id="myCampaigns">
+              <div class="page-loader"><div class="spinner"></div></div>
+            </div>
+          </div>
+
+          <!-- My NFTs -->
+          <div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
+              <h3>My NFT Receipts</h3>
+              <span class="badge badge-purple">On-chain</span>
+            </div>
+            <div id="myNFTs">
+              <div class="page-loader"><div class="spinner"></div></div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- LEADERBOARD (always visible) -->
+      <div style="margin-top:1rem">
+        <div class="section-header" style="text-align:left;margin-bottom:1.5rem">
+          <p class="section-eyebrow">Hall of Fame</p>
+          <h2 class="section-title">Donor <span class="gradient-text">Leaderboard</span></h2>
+          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:0.5rem">
+            Top donors ranked by total ETH contributed across all campaigns
+          </p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+          <div>
+            <div id="leaderboard">
+              <div class="page-loader"><div class="spinner"></div></div>
+            </div>
+          </div>
+
+          <!-- Badge Explanation -->
+          <div>
+            <div class="card" style="padding:1.75rem">
+              <h4 style="margin-bottom:1.25rem">🏅 Donor Badge System</h4>
+              <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.25rem">
+                Every time you donate, you receive an on-chain NFT receipt. Your badge tier upgrades automatically based on cumulative donations.
+              </p>
+              <div style="display:flex;flex-direction:column;gap:0.75rem">
+                <div class="card" style="padding:1rem">
+                  <div style="display:flex;align-items:center;gap:0.75rem">
+                    <div style="font-size:1.5rem">🥉</div>
+                    <div>
+                      <div style="font-weight:700">Bronze Donor</div>
+                      <div style="font-size:0.78rem;color:var(--text-secondary)">Any amount up to 0.01 ETH</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card" style="padding:1rem">
+                  <div style="display:flex;align-items:center;gap:0.75rem">
+                    <div style="font-size:1.5rem">🥈</div>
+                    <div>
+                      <div style="font-weight:700">Silver Donor</div>
+                      <div style="font-size:0.78rem;color:var(--text-secondary)">0.01 ETH or more per donation</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card" style="padding:1rem">
+                  <div style="display:flex;align-items:center;gap:0.75rem">
+                    <div style="font-size:1.5rem">🥇</div>
+                    <div>
+                      <div style="font-weight:700;color:var(--gold)">Gold Donor</div>
+                      <div style="font-size:0.78rem;color:var(--text-secondary)">0.1 ETH or more per donation</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="card card-gradient" style="padding:1rem">
+                  <div style="display:flex;align-items:center;gap:0.75rem">
+                    <div style="font-size:1.5rem">💎</div>
+                    <div>
+                      <div style="font-weight:700;color:var(--teal)">Diamond Donor</div>
+                      <div style="font-size:0.78rem;color:var(--text-secondary)">1 ETH or more — elite tier</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top:1.5rem">
+                <a href="campaigns.html" class="btn btn-primary w-full">Donate to Earn Badges →</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom" style="justify-content:center">
+        <span>© 2026 CharityFund — Decentralized Charity Platform on Ethereum</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/web3.js"></script>
+  <script src="js/dashboard.js"></script>
+
+  <script>
+    // Update avatar initials when connected
+    window.addEventListener('walletConnected', () => {
+      const avatar = document.getElementById('myAvatar');
+      if (avatar && W3.address) {
+        avatar.textContent = W3.address.slice(2, 4).toUpperCase();
+        avatar.style = `
+          width:64px;height:64px;border-radius:50%;
+          display:flex;align-items:center;justify-content:center;
+          font-size:1.2rem;font-weight:800;flex-shrink:0;
+          ${utils.avatarStyle(W3.address)}
+        `;
+      }
+    });
+  </script>
+
+</body>
+</html>

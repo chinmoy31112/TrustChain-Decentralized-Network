@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Campaign — CharityFund</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">💚</div>
+      <span class="brand-text">CharityFund</span>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html"            class="nav-link">Home</a>
+      <a href="campaigns.html"        class="nav-link">Campaigns</a>
+      <a href="create-campaign.html"  class="nav-link">Start Campaign</a>
+      <a href="dashboard.html"        class="nav-link">Dashboard</a>
+    </div>
+    <div class="navbar-right">
+      <div class="wallet-info">
+        <span class="wallet-dot disconnected"></span>
+        <span data-wallet-addr>Not connected</span>
+      </div>
+      <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
+    </div>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- MAIN — populated by detail.js -->
+  <main id="mainContent">
+    <div class="page-loader" style="min-height:70vh">
+      <div class="spinner"></div>
+      <span>Loading campaign…</span>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom" style="justify-content:center">
+        <span>© 2026 CharityFund — Decentralized Charity Platform on Ethereum</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/web3.js"></script>
+  <script src="js/detail.js"></script>
+</body>
+</html>

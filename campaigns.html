@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse Campaigns — CharityFund</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">💚</div>
+      <span class="brand-text">CharityFund</span>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html"            class="nav-link">Home</a>
+      <a href="campaigns.html"        class="nav-link active">Campaigns</a>
+      <a href="create-campaign.html"  class="nav-link">Start Campaign</a>
+      <a href="dashboard.html"        class="nav-link">Dashboard</a>
+    </div>
+    <div class="navbar-right">
+      <div class="wallet-info">
+        <span class="wallet-dot disconnected"></span>
+        <span data-wallet-addr>Not connected</span>
+      </div>
+      <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
+    </div>
+    <button class="hamburger"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <header class="page-header">
+    <div class="container">
+      <p class="section-eyebrow">On-chain Fundraising</p>
+      <h1 class="section-title">Browse <span class="gradient-text">Campaigns</span></h1>
+      <p style="color:var(--text-secondary);margin-top:0.5rem">
+        <span id="campaignCount">—</span> campaigns found
+      </p>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main style="padding-bottom:5rem">
+    <div class="container">
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar">
+        <!-- Search -->
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="text"
+            id="campaignSearch"
+            class="form-control"
+            placeholder="Search campaigns…"
+          />
+        </div>
+
+        <!-- Status Filter -->
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-status="all">All</button>
+          <button class="filter-tab" data-status="active">Active</button>
+          <button class="filter-tab" data-status="completed">Goal Met</button>
+          <button class="filter-tab" data-status="ended">Ended</button>
+        </div>
+      </div>
+
+      <!-- CATEGORY TABS -->
+      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:2rem" id="catTabs">
+        <!-- Injected by script -->
+      </div>
+
+      <!-- CAMPAIGNS GRID -->
+      <div class="grid-3" id="campaignsGrid">
+        <div class="page-loader" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom" style="justify-content:center">
+        <span>© 2026 CharityFund — Decentralized Charity Platform on Ethereum</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/web3.js"></script>
+  <script src="js/campaigns.js"></script>
+
+  <script>
+    // Inject category tabs
+    document.addEventListener('DOMContentLoaded', () => {
+      const catTabs = document.getElementById('catTabs');
+      if (!catTabs) return;
+
+      catTabs.innerHTML = window.CATEGORIES.map((cat, i) => `
+        <button
+          class="filter-tab ${cat.value === 'all' ? 'active' : ''}"
+          data-cat="${cat.value}"
+        >
+          ${cat.icon} ${cat.label}
+        </button>
+      `).join('');
+
+      // Pre-select category from URL query
+      const params = new URLSearchParams(window.location.search);
+      const urlCat = params.get('cat');
+      if (urlCat) {
+        catTabs.querySelectorAll('[data-cat]').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.cat === urlCat);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
