@@ -15,7 +15,8 @@ window.W3 = {
   fundContract: null,
   nftContract: null,
   isConnected: false,
-  walletType: null
+  walletType: null,
+  initialConnectionDone: false
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -223,24 +224,33 @@ async function switchToMantleNetwork(targetChainId = window.DEFAULT_CHAIN_ID) {
     // Chain not added, try to add it
     if (switchError.code === 4902 || switchError.code === -32603) {
       try {
+        const chainParams = {
+          chainId: chainIdHex,
+          chainName: network.name,
+          nativeCurrency: {
+            name: network.currency,
+            symbol: network.currency,
+            decimals: network.decimals
+          },
+          rpcUrls: [network.rpcUrl]
+        };
+        
+        if (network.explorer) {
+          chainParams.blockExplorerUrls = [network.explorer];
+        }
+
         await provider.request({
           method: 'wallet_addEthereumChain',
-          params: [{
-            chainId: chainIdHex,
-            chainName: network.name,
-            nativeCurrency: {
-              name: network.currency,
-              symbol: network.currency,
-              decimals: network.decimals
-            },
-            rpcUrls: [network.rpcUrl],
-            blockExplorerUrls: network.explorer ? [network.explorer] : []
-          }]
+          params: [chainParams]
         });
         return true;
       } catch (addError) {
         console.error('Failed to add network:', addError);
-        toast.error('Failed to add Mantle network');
+        if (W3.walletType === 'Phantom' || window.ethereum?.isPhantom) {
+          toast.warning('Phantom blocks adding this network automatically. Please switch manually in the extension.');
+        } else {
+          toast.error('Failed to add network: ' + (addError.message || 'Unknown error'));
+        }
         return false;
       }
     }
@@ -470,6 +480,9 @@ async function _initWeb3(account, ethereumProvider = window.ethereum) {
   window.dispatchEvent(new CustomEvent('walletConnected', {
     detail: { address: W3.address, chainId: W3.chainId, walletType: W3.walletType }
   }));
+
+  // Mark initial connection as done so accountsChanged doesn't show toast on load
+  setTimeout(() => { W3.initialConnectionDone = true; }, 500);
 }
 
 function disconnectWallet() {
@@ -481,6 +494,7 @@ function disconnectWallet() {
   W3.nftContract = null;
   W3.isConnected = false;
   W3.walletType = null;
+  W3.initialConnectionDone = false;
 
   // Clear saved preference and mark as explicitly disconnected
   try { 
@@ -624,8 +638,13 @@ if (window.ethereum && !window._ethereumListenersAdded) {
     if (!accounts || accounts.length === 0) {
       disconnectWallet();
     } else {
+      const oldAddress = W3.address;
       await _initWeb3(accounts[0]);
-      toast.info(`Switched to ${utils.shortAddr(accounts[0])}`);
+      
+      // Only show toast if it was a real switch, not the initial auto-connect
+      if (W3.initialConnectionDone && oldAddress && oldAddress.toLowerCase() !== accounts[0].toLowerCase()) {
+        toast.info(`Switched to ${utils.shortAddr(accounts[0])}`);
+      }
     }
   });
 
