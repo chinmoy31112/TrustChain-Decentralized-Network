@@ -264,7 +264,12 @@ const WALLET_OPTIONS = [
     id: 'metamask',
     name: 'MetaMask',
     icon: `<img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="28" height="28" alt="MetaMask" style="border-radius:6px" />`,
-    detect: () => window.ethereum?.isMetaMask && !window.ethereum?.isPhantom,
+    detect: () => {
+      if (window.ethereum?.providers) {
+        return window.ethereum.providers.some(p => p.isMetaMask && !p.isPhantom);
+      }
+      return window.ethereum?.isMetaMask && !window.ethereum?.isPhantom && !window.phantom?.ethereum;
+    },
     installUrl: 'https://metamask.io/download/',
     color: '#E27625'
   },
@@ -272,7 +277,7 @@ const WALLET_OPTIONS = [
     id: 'phantom',
     name: 'Phantom',
     icon: `<img src="https://www.phantom.app/img/phantom-logo.svg" width="28" height="28" alt="Phantom" style="border-radius:6px" onerror="this.outerHTML='<span style=font-size:1.4rem>👻</span>'" />`,
-    detect: () => window.ethereum?.isPhantom,
+    detect: () => !!(window.phantom?.ethereum?.isPhantom || window.ethereum?.isPhantom || window.ethereum?.providers?.some(p => p.isPhantom)),
     installUrl: 'https://phantom.app/download',
     color: '#AB9FF2'
   },
@@ -312,10 +317,15 @@ const WALLET_OPTIONS = [
 
 function getProviderForWallet(walletId) {
   const eth = window.ethereum;
+
+  if (walletId === 'phantom' && window.phantom?.ethereum) {
+    return window.phantom.ethereum;
+  }
+
   if (!eth) return null;
   if (eth.providers && eth.providers.length > 0) {
     switch (walletId) {
-      case 'metamask': return eth.providers.find(p => p.isMetaMask) || null;
+      case 'metamask': return eth.providers.find(p => p.isMetaMask && !p.isPhantom) || null;
       case 'phantom': return eth.providers.find(p => p.isPhantom) || null;
       case 'okx': return eth.providers.find(p => p.isOKExWallet || p.isOkxWallet) || null;
       case 'coinbase': return eth.providers.find(p => p.isCoinbaseWallet) || null;
@@ -414,7 +424,10 @@ async function connectSpecificWallet(walletId) {
 
     await _initWeb3(accounts[0], provider);
     // Save wallet preference for auto-reconnect across pages
-    try { localStorage.setItem('trustchain_wallet', walletId); } catch(e) {}
+    try { 
+      localStorage.setItem('trustchain_wallet', walletId); 
+      localStorage.removeItem('trustchain_disconnected');
+    } catch(e) {}
     toast.success(`Connected: ${utils.shortAddr(W3.address)} via ${type}`);
     return true;
   } catch (err) {
@@ -469,8 +482,11 @@ function disconnectWallet() {
   W3.isConnected = false;
   W3.walletType = null;
 
-  // Clear saved preference
-  try { localStorage.removeItem('trustchain_wallet'); } catch(e) {}
+  // Clear saved preference and mark as explicitly disconnected
+  try { 
+    localStorage.removeItem('trustchain_wallet'); 
+    localStorage.setItem('trustchain_disconnected', 'true');
+  } catch(e) {}
 
   _updateWalletUI();
   window.dispatchEvent(new CustomEvent('walletDisconnected'));
@@ -555,6 +571,13 @@ function _updateWalletUI() {
 // Auto-reconnect
 // ══════════════════════════════════════════════════════════════
 async function tryAutoConnect() {
+  // Check if user explicitly disconnected previously
+  try {
+    if (localStorage.getItem('trustchain_disconnected') === 'true') {
+      return; // Do not auto-connect if explicitly disconnected by user
+    }
+  } catch(e) {}
+
   // First try to auto-reconnect using saved wallet preference
   let savedWallet = null;
   try { savedWallet = localStorage.getItem('trustchain_wallet'); } catch(e) {}

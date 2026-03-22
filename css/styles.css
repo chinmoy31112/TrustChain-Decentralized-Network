@@ -120,7 +120,12 @@ input, textarea, select { font-family: inherit; }
   font-size: 1.1rem;
 }
 
-.brand-text { background: var(--gradient-main); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.brand-text {
+  background: var(--gradient-main); 
+  -webkit-background-clip: text; 
+  background-clip: text;
+  -webkit-text-fill-color: transparent; 
+}
 
 .navbar-links {
   display: flex;
@@ -344,6 +349,7 @@ input, textarea, select { font-family: inherit; }
   margin-bottom: 0.4rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -354,6 +360,7 @@ input, textarea, select { font-family: inherit; }
   margin-bottom: 1rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -445,6 +452,7 @@ input, textarea, select { font-family: inherit; }
   font-weight: 800;
   background: var(--gradient-main);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   line-height: 1;
   margin-bottom: 0.4rem;
@@ -607,6 +615,7 @@ select.form-control option { background: #0d0d2b; }
 .hero-title .gradient-text {
   background: var(--gradient-main);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -656,6 +665,7 @@ select.form-control option { background: #0d0d2b; }
 .gradient-text {
   background: var(--gradient-main);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -885,6 +895,14 @@ select.form-control option { background: #0d0d2b; }
   justify-content: center;
   font-size: 1.8rem;
   margin: 0 auto 1rem;
+  overflow: hidden;
+}
+
+.step-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
 }
 
 .step-number {
