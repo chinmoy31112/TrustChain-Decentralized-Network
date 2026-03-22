@@ -263,7 +263,7 @@ const WALLET_OPTIONS = [
   {
     id: 'metamask',
     name: 'MetaMask',
-    icon: `<svg width="28" height="28" viewBox="0 0 35 33" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32.96 1L19.37 10.7l2.45-5.78L32.96 1z" fill="#E17726" stroke="#E17726" stroke-width=".25"/><path d="M2.04 1l13.49 9.8-2.33-5.88L2.04 1z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M28.2 23.64l-3.62 5.55 7.75 2.13 2.22-7.56-6.35-.12z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M.25 23.76l2.21 7.56 7.74-2.13-3.61-5.55-6.34.12z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M9.76 14.96l-2.16 3.26 7.68.35-.26-8.27-5.26 4.66z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M25.24 14.96l-5.32-4.75-.17 8.36 7.67-.35-2.18-3.26z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M10.2 29.19l4.61-2.25-3.98-3.1-.63 5.35z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M20.19 26.94l4.6 2.25-.62-5.35-3.98 3.1z" fill="#E27625" stroke="#E27625" stroke-width=".25"/></svg>`,
+    icon: `<img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="28" height="28" alt="MetaMask" style="border-radius:6px" />`,
     detect: () => window.ethereum?.isMetaMask && !window.ethereum?.isPhantom,
     installUrl: 'https://metamask.io/download/',
     color: '#E27625'
@@ -271,7 +271,7 @@ const WALLET_OPTIONS = [
   {
     id: 'phantom',
     name: 'Phantom',
-    icon: `<svg width="28" height="28" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="128" height="128" rx="64" fill="#AB9FF2"/><path d="M110 64c0 25.4-20.6 46-46 46S18 89.4 18 64 38.6 18 64 18s46 20.6 46 46z" fill="#fff"/><path fill-rule="evenodd" clip-rule="evenodd" d="M41 64c0 12.7 10.3 23 23 23s23-10.3 23-23-10.3-23-23-23-23 10.3-23 23zm16-8a8 8 0 1 0 .001 16.001A8 8 0 0 0 57 56zm16 0a8 8 0 1 0 .001 16.001A8 8 0 0 0 73 56z" fill="#AB9FF2"/></svg>`,
+    icon: `<img src="https://www.phantom.app/img/phantom-logo.svg" width="28" height="28" alt="Phantom" style="border-radius:6px" onerror="this.outerHTML='<span style=font-size:1.4rem>👻</span>'" />`,
     detect: () => window.ethereum?.isPhantom,
     installUrl: 'https://phantom.app/download',
     color: '#AB9FF2'
@@ -279,7 +279,7 @@ const WALLET_OPTIONS = [
   {
     id: 'okx',
     name: 'OKX Wallet',
-    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="8" fill="#000"/><rect x="4" y="4" width="10" height="10" rx="2" fill="#fff"/><rect x="18" y="4" width="10" height="10" rx="2" fill="#fff"/><rect x="4" y="18" width="10" height="10" rx="2" fill="#fff"/><rect x="18" y="18" width="10" height="10" rx="2" fill="#fff"/></svg>`,
+    icon: `<img src="https://static.okx.com/cdn/assets/imgs/2112/50B22BD4E2F20379.png" width="28" height="28" alt="OKX" style="border-radius:6px" onerror="this.outerHTML='<span style=font-size:1.4rem>🟢</span>'" />`,
     detect: () => window.ethereum?.isOKExWallet || window.ethereum?.isOkxWallet || window.okxwallet,
     installUrl: 'https://www.okx.com/web3',
     color: '#333'
@@ -287,7 +287,7 @@ const WALLET_OPTIONS = [
   {
     id: 'coinbase',
     name: 'Coinbase Wallet',
-    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="16" fill="#0052FF"/><path d="M16 6C10.48 6 6 10.48 6 16s4.48 10 10 10 10-4.48 10-10S21.52 6 16 6zm0 4.8a5.2 5.2 0 1 1 0 10.4A5.2 5.2 0 0 1 16 10.8zm-2.4 3.2v4h4.8v-4h-4.8z" fill="#fff"/></svg>`,
+    icon: `<img src="https://altcoinsbox.com/wp-content/uploads/2022/12/coinbase-logo-300x300.webp" width="28" height="28" alt="Coinbase" style="border-radius:6px" onerror="this.outerHTML='<span style=font-size:1.4rem>🔵</span>'" />`,
     detect: () => window.ethereum?.isCoinbaseWallet || window.coinbaseWalletExtension,
     installUrl: 'https://www.coinbase.com/wallet/downloads',
     color: '#0052FF'
@@ -295,7 +295,7 @@ const WALLET_OPTIONS = [
   {
     id: 'brave',
     name: 'Brave Wallet',
-    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="8" fill="#FF5500"/><path d="M16 5l2.5 2.5L21 6l1.5 3-2 1.5 1 3-3 .5-1 3-3-1-3 1-1-3-3-.5 1-3-2-1.5L7 6l2.5 1.5L12 5h4z" fill="#fff"/><circle cx="16" cy="19" r="4" fill="#fff"/></svg>`,
+    icon: `<img src="https://brave.com/static-assets/images/brave-logo-sans-text.svg" width="28" height="28" alt="Brave" style="border-radius:6px" onerror="this.outerHTML='<span style=font-size:1.4rem>🦁</span>'" />`,
     detect: () => window.ethereum?.isBraveWallet,
     installUrl: 'https://brave.com/wallet/',
     color: '#FF5500'
@@ -303,7 +303,7 @@ const WALLET_OPTIONS = [
   {
     id: 'browser',
     name: 'Browser Wallet',
-    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="8" fill="#7c3aed"/><circle cx="16" cy="16" r="9" stroke="#fff" stroke-width="2"/><path d="M16 7c-2.5 4-2.5 14 0 18M16 7c2.5 4 2.5 14 0 18M7 16h18" stroke="#fff" stroke-width="2"/></svg>`,
+    icon: `<span style="font-size:1.5rem">🌐</span>`,
     detect: () => !!window.ethereum,
     installUrl: 'https://metamask.io/download/',
     color: '#7c3aed'
@@ -413,6 +413,8 @@ async function connectSpecificWallet(walletId) {
     }
 
     await _initWeb3(accounts[0], provider);
+    // Save wallet preference for auto-reconnect across pages
+    try { localStorage.setItem('trustchain_wallet', walletId); } catch(e) {}
     toast.success(`Connected: ${utils.shortAddr(W3.address)} via ${type}`);
     return true;
   } catch (err) {
@@ -466,6 +468,9 @@ function disconnectWallet() {
   W3.nftContract = null;
   W3.isConnected = false;
   W3.walletType = null;
+
+  // Clear saved preference
+  try { localStorage.removeItem('trustchain_wallet'); } catch(e) {}
 
   _updateWalletUI();
   window.dispatchEvent(new CustomEvent('walletDisconnected'));
@@ -550,6 +555,28 @@ function _updateWalletUI() {
 // Auto-reconnect
 // ══════════════════════════════════════════════════════════════
 async function tryAutoConnect() {
+  // First try to auto-reconnect using saved wallet preference
+  let savedWallet = null;
+  try { savedWallet = localStorage.getItem('trustchain_wallet'); } catch(e) {}
+
+  if (savedWallet && window.ethereum) {
+    const provider = getProviderForWallet(savedWallet);
+    if (provider) {
+      try {
+        const accounts = await provider.request({ method: 'eth_accounts' });
+        if (accounts && accounts.length > 0) {
+          const walletDef = WALLET_OPTIONS.find(w => w.id === savedWallet);
+          W3.walletType = walletDef ? walletDef.name : 'Wallet';
+          await _initWeb3(accounts[0], provider);
+          return; // Successfully reconnected
+        }
+      } catch (e) {
+        console.log('Saved wallet auto-connect failed:', e);
+      }
+    }
+  }
+
+  // Fallback: try generic detection
   const detected = detectWalletProvider();
   if (!detected) return;
 
@@ -567,7 +594,9 @@ async function tryAutoConnect() {
 // ══════════════════════════════════════════════════════════════
 // Event Listeners
 // ══════════════════════════════════════════════════════════════
-if (window.ethereum) {
+if (window.ethereum && !window._ethereumListenersAdded) {
+  window._ethereumListenersAdded = true;
+
   window.ethereum.on('accountsChanged', async (accounts) => {
     if (!accounts || accounts.length === 0) {
       disconnectWallet();

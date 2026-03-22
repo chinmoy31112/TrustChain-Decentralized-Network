@@ -50,7 +50,7 @@
 
           <!-- Wallet Required Notice -->
           <div id="walletRequired" class="card" style="padding:2rem;text-align:center;margin-bottom:1.5rem">
-            <div style="font-size:2.5rem;margin-bottom:1rem">🦊</div>
+            <div style="font-size:2.5rem;margin-bottom:1rem">💼</div>
             <h3 style="margin-bottom:0.5rem">Connect Your Wallet</h3>
             <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">
               You need to connect your wallet to create a campaign. The campaign will be deployed on-chain under your wallet address.
@@ -80,7 +80,7 @@
               </div>
             </div>
 
-            <form id="createCampaignForm">
+            <form id="createCampaignForm" novalidate>
               <!-- Step 1: Basic Info -->
               <div class="card step-content active" id="step1" style="padding:2rem">
                 <h3 style="margin-bottom:1.5rem;color:var(--teal)">Step 1: Basic Information</h3>
@@ -133,7 +133,7 @@
               </div>
 
               <!-- Step 2: Campaign Details -->
-              <div class="card step-content hidden" id="step2" style="padding:2rem">
+              <div class="card step-content" id="step2" style="padding:2rem">
                 <h3 style="margin-bottom:1.5rem;color:var(--teal)">Step 2: Campaign Details</h3>
 
                 <div class="form-group">
@@ -212,7 +212,7 @@
               </div>
 
               <!-- Step 3: Preview & Submit -->
-              <div class="card step-content hidden" id="step3" style="padding:2rem">
+              <div class="card step-content" id="step3" style="padding:2rem">
                 <h3 style="margin-bottom:1.5rem;color:var(--teal)">Step 3: Preview & Deploy</h3>
 
                 <!-- Preview Card -->
