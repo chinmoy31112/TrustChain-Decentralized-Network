@@ -1,0 +1,22 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "Base64",
+  "sourceName": "@openzeppelin/contracts/utils/Base64.sol",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "bytes1",
+          "name": "",
+          "type": "bytes1"
+        }
+      ],
+      "name": "InvalidBase64Char",
+      "type": "error"
+    }
+  ],
+  "bytecode": "0x6080806040523460175760399081601c823930815050f35b5f80fdfe5f80fdfea2646970667358221220b2a8dde7c8f16f9168ba690fb6b8da2975f3bbedb58692e014c231f22f39092b64736f6c63430008180033",
+  "deployedBytecode": "0x5f80fdfea2646970667358221220b2a8dde7c8f16f9168ba690fb6b8da2975f3bbedb58692e014c231f22f39092b64736f6c63430008180033",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}
