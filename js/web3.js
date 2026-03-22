@@ -258,56 +258,164 @@ async function switchToMantleNetwork(targetChainId = window.DEFAULT_CHAIN_ID) {
 // ══════════════════════════════════════════════════════════════
 // Wallet Connection
 // ══════════════════════════════════════════════════════════════
-async function connectWallet() {
-  const detected = detectWalletProvider();
+// ── Wallet Definitions ─────────────────────────────────────
+const WALLET_OPTIONS = [
+  {
+    id: 'metamask',
+    name: 'MetaMask',
+    icon: `<svg width="28" height="28" viewBox="0 0 35 33" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M32.96 1L19.37 10.7l2.45-5.78L32.96 1z" fill="#E17726" stroke="#E17726" stroke-width=".25"/><path d="M2.04 1l13.49 9.8-2.33-5.88L2.04 1z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M28.2 23.64l-3.62 5.55 7.75 2.13 2.22-7.56-6.35-.12z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M.25 23.76l2.21 7.56 7.74-2.13-3.61-5.55-6.34.12z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M9.76 14.96l-2.16 3.26 7.68.35-.26-8.27-5.26 4.66z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M25.24 14.96l-5.32-4.75-.17 8.36 7.67-.35-2.18-3.26z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M10.2 29.19l4.61-2.25-3.98-3.1-.63 5.35z" fill="#E27625" stroke="#E27625" stroke-width=".25"/><path d="M20.19 26.94l4.6 2.25-.62-5.35-3.98 3.1z" fill="#E27625" stroke="#E27625" stroke-width=".25"/></svg>`,
+    detect: () => window.ethereum?.isMetaMask && !window.ethereum?.isPhantom,
+    installUrl: 'https://metamask.io/download/',
+    color: '#E27625'
+  },
+  {
+    id: 'phantom',
+    name: 'Phantom',
+    icon: `<svg width="28" height="28" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="128" height="128" rx="64" fill="#AB9FF2"/><path d="M110 64c0 25.4-20.6 46-46 46S18 89.4 18 64 38.6 18 64 18s46 20.6 46 46z" fill="#fff"/><path fill-rule="evenodd" clip-rule="evenodd" d="M41 64c0 12.7 10.3 23 23 23s23-10.3 23-23-10.3-23-23-23-23 10.3-23 23zm16-8a8 8 0 1 0 .001 16.001A8 8 0 0 0 57 56zm16 0a8 8 0 1 0 .001 16.001A8 8 0 0 0 73 56z" fill="#AB9FF2"/></svg>`,
+    detect: () => window.ethereum?.isPhantom,
+    installUrl: 'https://phantom.app/download',
+    color: '#AB9FF2'
+  },
+  {
+    id: 'okx',
+    name: 'OKX Wallet',
+    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="8" fill="#000"/><rect x="4" y="4" width="10" height="10" rx="2" fill="#fff"/><rect x="18" y="4" width="10" height="10" rx="2" fill="#fff"/><rect x="4" y="18" width="10" height="10" rx="2" fill="#fff"/><rect x="18" y="18" width="10" height="10" rx="2" fill="#fff"/></svg>`,
+    detect: () => window.ethereum?.isOKExWallet || window.ethereum?.isOkxWallet || window.okxwallet,
+    installUrl: 'https://www.okx.com/web3',
+    color: '#333'
+  },
+  {
+    id: 'coinbase',
+    name: 'Coinbase Wallet',
+    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="16" fill="#0052FF"/><path d="M16 6C10.48 6 6 10.48 6 16s4.48 10 10 10 10-4.48 10-10S21.52 6 16 6zm0 4.8a5.2 5.2 0 1 1 0 10.4A5.2 5.2 0 0 1 16 10.8zm-2.4 3.2v4h4.8v-4h-4.8z" fill="#fff"/></svg>`,
+    detect: () => window.ethereum?.isCoinbaseWallet || window.coinbaseWalletExtension,
+    installUrl: 'https://www.coinbase.com/wallet/downloads',
+    color: '#0052FF'
+  },
+  {
+    id: 'brave',
+    name: 'Brave Wallet',
+    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="8" fill="#FF5500"/><path d="M16 5l2.5 2.5L21 6l1.5 3-2 1.5 1 3-3 .5-1 3-3-1-3 1-1-3-3-.5 1-3-2-1.5L7 6l2.5 1.5L12 5h4z" fill="#fff"/><circle cx="16" cy="19" r="4" fill="#fff"/></svg>`,
+    detect: () => window.ethereum?.isBraveWallet,
+    installUrl: 'https://brave.com/wallet/',
+    color: '#FF5500'
+  },
+  {
+    id: 'browser',
+    name: 'Browser Wallet',
+    icon: `<svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="32" height="32" rx="8" fill="#7c3aed"/><circle cx="16" cy="16" r="9" stroke="#fff" stroke-width="2"/><path d="M16 7c-2.5 4-2.5 14 0 18M16 7c2.5 4 2.5 14 0 18M7 16h18" stroke="#fff" stroke-width="2"/></svg>`,
+    detect: () => !!window.ethereum,
+    installUrl: 'https://metamask.io/download/',
+    color: '#7c3aed'
+  }
+];
 
-  if (!detected) {
-    toast.error('No wallet found! Please install MetaMask or another Web3 wallet.');
-    window.open('https://metamask.io/download/', '_blank');
+function getProviderForWallet(walletId) {
+  const eth = window.ethereum;
+  if (!eth) return null;
+  if (eth.providers && eth.providers.length > 0) {
+    switch (walletId) {
+      case 'metamask': return eth.providers.find(p => p.isMetaMask) || null;
+      case 'phantom': return eth.providers.find(p => p.isPhantom) || null;
+      case 'okx': return eth.providers.find(p => p.isOKExWallet || p.isOkxWallet) || null;
+      case 'coinbase': return eth.providers.find(p => p.isCoinbaseWallet) || null;
+      case 'brave': return eth.providers.find(p => p.isBraveWallet) || null;
+      default: return eth.providers[0];
+    }
+  }
+  return eth;
+}
+
+function showWalletChooser() {
+  const existing = document.getElementById('wallet-chooser-modal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'wallet-chooser-modal';
+  modal.className = 'wc-overlay';
+
+  const walletRows = WALLET_OPTIONS.map(w => {
+    const detected = w.detect();
+    return `
+      <button class="wc-option" data-wallet="${w.id}" ${!detected && w.id !== 'browser' ? 'data-install="' + w.installUrl + '"' : ''}>
+        <span class="wc-icon">${w.icon}</span>
+        <span class="wc-name">${w.name}</span>
+        ${detected
+          ? '<span class="wc-badge wc-detected">Detected</span>'
+          : (w.id === 'browser' ? '<span class="wc-badge wc-fallback">Any EIP-1193</span>' : '<span class="wc-badge wc-install">Install ↗</span>')
+        }
+      </button>`;
+  }).join('');
+
+  modal.innerHTML = `
+    <div class="wc-modal">
+      <div class="wc-header">
+        <div>
+          <h3 class="wc-title">Connect Wallet</h3>
+          <p class="wc-subtitle">Choose your preferred wallet to connect</p>
+        </div>
+        <button class="wc-close" id="wc-close-btn">✕</button>
+      </div>
+      <div class="wc-list">${walletRows}</div>
+      <p class="wc-footer">By connecting, you agree to interact with TrustChain smart contracts on Mantle Network.</p>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  document.getElementById('wc-close-btn').addEventListener('click', () => modal.remove());
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+
+  modal.querySelectorAll('.wc-option').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const walletId = btn.dataset.wallet;
+      const installUrl = btn.dataset.install;
+      if (installUrl) {
+        window.open(installUrl, '_blank');
+        return;
+      }
+      modal.remove();
+      await connectSpecificWallet(walletId);
+    });
+  });
+}
+
+async function connectSpecificWallet(walletId) {
+  let provider = getProviderForWallet(walletId);
+  const walletDef = WALLET_OPTIONS.find(w => w.id === walletId);
+  const type = walletDef ? walletDef.name : 'Wallet';
+
+  if (!provider) {
+    provider = window.ethereum;
+  }
+
+  if (!provider) {
+    toast.error('No wallet found. Please install ' + type);
     return false;
   }
 
-  const { provider, type } = detected;
   W3.walletType = type;
 
   try {
-    // Request permissions (more secure than just eth_requestAccounts)
     try {
-      await provider.request({
-        method: 'wallet_requestPermissions',
-        params: [{ eth_accounts: {} }]
-      });
-    } catch (permError) {
-      // Some wallets don't support wallet_requestPermissions, fall back
-      console.log('wallet_requestPermissions not supported, using eth_requestAccounts');
-    }
+      await provider.request({ method: 'wallet_requestPermissions', params: [{ eth_accounts: {} }] });
+    } catch (e) { /* fallback */ }
 
-    // Get accounts
     const accounts = await provider.request({ method: 'eth_requestAccounts' });
+    if (!accounts || accounts.length === 0) throw new Error('No accounts returned');
 
-    if (!accounts || accounts.length === 0) {
-      throw new Error('No accounts returned');
-    }
-
-    // Check network and switch if needed
     const chainId = await provider.request({ method: 'eth_chainId' });
     const currentChainId = parseInt(chainId, 16);
 
     if (!window.NETWORKS[currentChainId]) {
       toast.info('Switching to Mantle Network...');
       const switched = await switchToMantleNetwork();
-      if (!switched) {
-        toast.warning('Please switch to Mantle Network manually');
-      }
+      if (!switched) toast.warning('Please switch to Mantle Network manually');
     }
 
-    // Initialize Web3
     await _initWeb3(accounts[0], provider);
     toast.success(`Connected: ${utils.shortAddr(W3.address)} via ${type}`);
     return true;
-
   } catch (err) {
-    console.error('Connection error:', err);
     if (err.code === 4001) {
       toast.warning('Connection rejected by user');
     } else {
@@ -315,6 +423,11 @@ async function connectWallet() {
     }
     return false;
   }
+}
+
+async function connectWallet() {
+  showWalletChooser();
+  return true;
 }
 
 async function _initWeb3(account, ethereumProvider = window.ethereum) {
@@ -376,13 +489,19 @@ function _updateWalletUI() {
     dot.classList.toggle('connected', W3.isConnected);
   });
 
-  // Connect buttons
+  // Connect buttons — show profile avatar after connect
   document.querySelectorAll('[data-connect-btn]').forEach(btn => {
     if (W3.isConnected) {
-      btn.innerHTML = `<span class="wallet-icon"></span>${utils.shortAddr(W3.address)}`;
+      const hue = parseInt(W3.address.slice(-4), 16) % 360;
+      const initials = W3.address.slice(2, 4).toUpperCase();
+      btn.innerHTML = `
+        <span class="nav-avatar" style="background:linear-gradient(135deg,hsl(${hue},70%,50%),hsl(${(hue+90)%360},70%,35%))">${initials}</span>
+        <span class="nav-addr">${utils.shortAddr(W3.address)}</span>
+        <span class="nav-online-dot"></span>
+      `;
       btn.classList.add('connected');
     } else {
-      btn.textContent = 'Connect Wallet';
+      btn.innerHTML = 'Connect Wallet';
       btn.classList.remove('connected');
     }
   });
@@ -485,10 +604,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-connect-btn]').forEach(btn => {
     btn.addEventListener('click', async () => {
       if (W3.isConnected) {
-        // Show wallet menu or copy address
         showWalletMenu(btn);
       } else {
-        await connectWallet();
+        showWalletChooser();
       }
     });
   });
@@ -755,6 +873,8 @@ function animateCounter(el, target, isEth = false) {
 // Exports
 // ══════════════════════════════════════════════════════════════
 window.connectWallet = connectWallet;
+window.showWalletChooser = showWalletChooser;
+window.connectSpecificWallet = connectSpecificWallet;
 window.disconnectWallet = disconnectWallet;
 window.switchToMantleNetwork = switchToMantleNetwork;
 window.loadCampaigns = loadCampaigns;

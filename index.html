@@ -44,20 +44,21 @@
       <canvas id="particles"></canvas>
     </div>
 
-    <div class="container">
+    <div class="container hero-two-col">
+      <!-- LEFT: Text content -->
       <div class="hero-content fade-up">
         <div class="hero-eyebrow">
           <span>🔗</span>
-          <span>Powered by Mantle Network</span>
+          <span>Live on Mantle Network</span>
         </div>
 
         <h1 class="hero-title">
-          Charity Giving,<br />
-          <span class="gradient-text">Fully Decentralized</span>
+          Fund Change,<br />
+          <span class="gradient-text">Transparently.</span>
         </h1>
 
         <p class="hero-desc">
-          Create campaigns, donate with crypto, vote on causes, and receive NFT receipts — all secured by smart contracts on Mantle. Zero middlemen. 100% transparent.
+          The world's most open charity platform built on Mantle L2. Every donation is on-chain, every cent is traceable, every impact is real — with near-zero gas fees.
         </p>
 
         <div class="hero-actions">
@@ -72,15 +73,61 @@
         <div style="display:flex;gap:2rem;margin-top:2.5rem;flex-wrap:wrap">
           <div>
             <div style="font-size:1.5rem;font-weight:900;color:var(--teal)" id="heroRaised">0 MNT</div>
-            <div style="font-size:0.75rem;color:var(--text-secondary)">Total Raised</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em">MNT Raised</div>
           </div>
           <div>
             <div style="font-size:1.5rem;font-weight:900" id="heroCampaigns">0</div>
-            <div style="font-size:0.75rem;color:var(--text-secondary)">Active Campaigns</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em">Campaigns</div>
           </div>
           <div>
             <div style="font-size:1.5rem;font-weight:900" id="heroDonors">0</div>
-            <div style="font-size:0.75rem;color:var(--text-secondary)">Global Donors</div>
+            <div style="font-size:0.75rem;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.08em">Donations</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Animated campaign cards -->
+      <div class="hero-visual" aria-hidden="true">
+        <!-- Decorative globe orb -->
+        <div class="hero-globe"></div>
+
+        <!-- Float Card 1 — top right -->
+        <div class="hero-float-card card-float-1">
+          <div class="hfc-icon">❤️</div>
+          <div class="hfc-body">
+            <div class="hfc-title">Health for All</div>
+            <div class="hfc-raised">+120 MNT</div>
+            <div class="hfc-bar"><div class="hfc-bar-fill" style="width:76%"></div></div>
+          </div>
+        </div>
+
+        <!-- Float Card 2 — middle left -->
+        <div class="hero-float-card card-float-2">
+          <div class="hfc-icon">🌱</div>
+          <div class="hfc-body">
+            <div class="hfc-title">Reforest Kenya</div>
+            <div class="hfc-raised">+85 MNT</div>
+            <div class="hfc-bar"><div class="hfc-bar-fill" style="width:54%"></div></div>
+          </div>
+        </div>
+
+        <!-- Float Card 3 — bottom right -->
+        <div class="hero-float-card card-float-3">
+          <div class="hfc-icon">📚</div>
+          <div class="hfc-body">
+            <div class="hfc-title">Education Fund</div>
+            <div class="hfc-raised">+210 MNT</div>
+            <div class="hfc-bar"><div class="hfc-bar-fill" style="width:92%"></div></div>
+          </div>
+        </div>
+
+        <!-- Float Card 4 — top left of visual -->
+        <div class="hero-float-card card-float-4">
+          <div class="hfc-icon">🆘</div>
+          <div class="hfc-body">
+            <div class="hfc-title">Disaster Relief</div>
+            <div class="hfc-raised">+340 MNT</div>
+            <div class="hfc-bar"><div class="hfc-bar-fill" style="width:68%"></div></div>
           </div>
         </div>
       </div>
