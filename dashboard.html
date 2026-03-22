@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Dashboard — CharityFund</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <title>My Dashboard — TrustChain</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -12,23 +12,21 @@
   <!-- NAVBAR -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">💚</div>
-      <span class="brand-text">CharityFund</span>
+      <div class="brand-icon">🔗</div>
+      <span class="brand-text">TrustChain</span>
     </a>
     <div class="navbar-links">
-      <a href="index.html"            class="nav-link">Home</a>
-      <a href="campaigns.html"        class="nav-link">Campaigns</a>
-      <a href="create-campaign.html"  class="nav-link">Start Campaign</a>
-      <a href="dashboard.html"        class="nav-link active">Dashboard</a>
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="campaigns.html" class="nav-link">Campaigns</a>
+      <a href="create-campaign.html" class="nav-link">Start Campaign</a>
+      <a href="dashboard.html" class="nav-link active">Dashboard</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
     </div>
     <div class="navbar-right">
-      <div class="wallet-info">
-        <span class="wallet-dot disconnected"></span>
-        <span data-wallet-addr>Not connected</span>
-      </div>
+      <div data-network-indicator class="hidden"></div>
       <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
     </div>
-    <button class="hamburger"><span></span><span></span><span></span></button>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
   <!-- PAGE HEADER -->
@@ -48,145 +46,86 @@
         <div style="font-size:3rem;margin-bottom:1rem">🦊</div>
         <h3 style="margin-bottom:0.5rem">Connect to View Dashboard</h3>
         <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">
-          Connect your MetaMask wallet to see your donation history, campaigns, and NFT receipts.
+          Connect your wallet to see your donation history, campaigns, and NFT receipts.
         </p>
-        <button class="btn btn-primary" data-connect-btn>Connect MetaMask</button>
+        <button class="btn btn-primary" data-connect-btn>Connect Wallet</button>
       </div>
 
       <!-- Dashboard Content (shown when connected) -->
       <div id="dashContent" class="hidden">
 
         <!-- Profile Card -->
-        <div class="card card-gradient" style="padding:1.75rem;margin-bottom:2rem;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
-          <div style="width:64px;height:64px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0" id="myAvatar">
-            ?
-          </div>
-          <div style="flex:1">
-            <div style="font-size:1.1rem;font-weight:700;font-family:monospace" id="myAddrDisplay">—</div>
-            <div style="display:flex;gap:0.5rem;margin-top:0.4rem;flex-wrap:wrap">
-              <span id="myBadge" class="badge badge-gray">Donor</span>
-              <span class="badge badge-purple" id="myNFTBadge">0 NFTs</span>
+        <div class="card card-gradient" style="padding:1.75rem;margin-bottom:2rem">
+          <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+            <div id="myAvatar" style="width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:800;flex-shrink:0;border:3px solid var(--teal)">
+              ?
             </div>
-          </div>
-          <div style="display:flex;gap:2rem;flex-wrap:wrap">
-            <div style="text-align:center">
-              <div style="font-size:1.5rem;font-weight:900;color:var(--teal)" id="myTotalDonated">—</div>
-              <div style="font-size:0.75rem;color:var(--text-secondary)">Total Donated</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-size:1.5rem;font-weight:900" id="myDonationCount">—</div>
-              <div style="font-size:0.75rem;color:var(--text-secondary)">Donations</div>
-            </div>
-            <div style="text-align:center">
-              <div style="font-size:1.5rem;font-weight:900" id="myNFTCount">0</div>
-              <div style="font-size:0.75rem;color:var(--text-secondary)">NFT Receipts</div>
-            </div>
-          </div>
-          <div style="margin-left:auto">
-            <button class="btn btn-outline btn-sm" onclick="utils.copy(W3.address)">📋 Copy Address</button>
-          </div>
-        </div>
-
-        <!-- My Content Grid -->
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;margin-bottom:3rem">
-
-          <!-- My Campaigns -->
-          <div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-              <h3>My Campaigns</h3>
-              <a href="create-campaign.html" class="btn btn-primary btn-sm">+ Create</a>
-            </div>
-            <div id="myCampaigns">
-              <div class="page-loader"><div class="spinner"></div></div>
-            </div>
-          </div>
-
-          <!-- My NFTs -->
-          <div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem">
-              <h3>My NFT Receipts</h3>
-              <span class="badge badge-purple">On-chain</span>
-            </div>
-            <div id="myNFTs">
-              <div class="page-loader"><div class="spinner"></div></div>
-            </div>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- LEADERBOARD (always visible) -->
-      <div style="margin-top:1rem">
-        <div class="section-header" style="text-align:left;margin-bottom:1.5rem">
-          <p class="section-eyebrow">Hall of Fame</p>
-          <h2 class="section-title">Donor <span class="gradient-text">Leaderboard</span></h2>
-          <p style="color:var(--text-secondary);font-size:0.9rem;margin-top:0.5rem">
-            Top donors ranked by total ETH contributed across all campaigns
-          </p>
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
-          <div>
-            <div id="leaderboard">
-              <div class="page-loader"><div class="spinner"></div></div>
-            </div>
-          </div>
-
-          <!-- Badge Explanation -->
-          <div>
-            <div class="card" style="padding:1.75rem">
-              <h4 style="margin-bottom:1.25rem">🏅 Donor Badge System</h4>
-              <p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:1.25rem">
-                Every time you donate, you receive an on-chain NFT receipt. Your badge tier upgrades automatically based on cumulative donations.
-              </p>
-              <div style="display:flex;flex-direction:column;gap:0.75rem">
-                <div class="card" style="padding:1rem">
-                  <div style="display:flex;align-items:center;gap:0.75rem">
-                    <div style="font-size:1.5rem">🥉</div>
-                    <div>
-                      <div style="font-weight:700">Bronze Donor</div>
-                      <div style="font-size:0.78rem;color:var(--text-secondary)">Any amount up to 0.01 ETH</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card" style="padding:1rem">
-                  <div style="display:flex;align-items:center;gap:0.75rem">
-                    <div style="font-size:1.5rem">🥈</div>
-                    <div>
-                      <div style="font-weight:700">Silver Donor</div>
-                      <div style="font-size:0.78rem;color:var(--text-secondary)">0.01 ETH or more per donation</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card" style="padding:1rem">
-                  <div style="display:flex;align-items:center;gap:0.75rem">
-                    <div style="font-size:1.5rem">🥇</div>
-                    <div>
-                      <div style="font-weight:700;color:var(--gold)">Gold Donor</div>
-                      <div style="font-size:0.78rem;color:var(--text-secondary)">0.1 ETH or more per donation</div>
-                    </div>
-                  </div>
-                </div>
-                <div class="card card-gradient" style="padding:1rem">
-                  <div style="display:flex;align-items:center;gap:0.75rem">
-                    <div style="font-size:1.5rem">💎</div>
-                    <div>
-                      <div style="font-weight:700;color:var(--teal)">Diamond Donor</div>
-                      <div style="font-size:0.78rem;color:var(--text-secondary)">1 ETH or more — elite tier</div>
-                    </div>
-                  </div>
-                </div>
+            <div style="flex:1;min-width:200px">
+              <div style="font-size:1.1rem;font-weight:700;font-family:monospace;display:flex;align-items:center;gap:0.5rem">
+                <span id="myAddrDisplay">—</span>
+                <button class="profile-copy-btn" onclick="utils.copy(W3.address)">📋</button>
               </div>
-
-              <div style="margin-top:1.5rem">
-                <a href="campaigns.html" class="btn btn-primary w-full">Donate to Earn Badges →</a>
+              <div style="display:flex;gap:0.5rem;margin-top:0.4rem;flex-wrap:wrap">
+                <span id="myBadge" class="badge badge-gray">Donor</span>
+                <span id="myNetworkBadge" class="badge badge-purple"></span>
+              </div>
+            </div>
+            <div style="display:flex;gap:2rem;flex-wrap:wrap">
+              <div style="text-align:center">
+                <div style="font-size:1.5rem;font-weight:900;color:var(--teal)" id="myTotalDonated">0 MNT</div>
+                <div style="font-size:0.75rem;color:var(--text-secondary)">Total Donated</div>
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:1.5rem;font-weight:900" id="myDonationCount">0</div>
+                <div style="font-size:0.75rem;color:var(--text-secondary)">Campaigns Supported</div>
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:1.5rem;font-weight:900" id="myNFTCount">0</div>
+                <div style="font-size:0.75rem;color:var(--text-secondary)">NFT Receipts</div>
+              </div>
+              <div style="text-align:center">
+                <div style="font-size:1.5rem;font-weight:900" id="myBalance">— MNT</div>
+                <div style="font-size:0.75rem;color:var(--text-secondary)">Wallet Balance</div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
+        <!-- Tabs -->
+        <div class="tabs" style="max-width:500px;margin-bottom:2rem">
+          <button class="tab active" data-tab="campaigns">My Campaigns</button>
+          <button class="tab" data-tab="donations">My Donations</button>
+          <button class="tab" data-tab="nfts">My NFTs</button>
+        </div>
+
+        <!-- Tab Content: My Campaigns -->
+        <div class="tab-content active" id="tab-campaigns">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
+            <h3>Campaigns Created by You</h3>
+            <a href="create-campaign.html" class="btn btn-primary btn-sm">+ Create Campaign</a>
+          </div>
+          <div id="myCampaigns">
+            <div class="page-loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Tab Content: My Donations -->
+        <div class="tab-content hidden" id="tab-donations">
+          <h3 style="margin-bottom:1.5rem">Your Donation History</h3>
+          <div id="myDonations">
+            <div class="page-loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Tab Content: My NFTs -->
+        <div class="tab-content hidden" id="tab-nfts">
+          <h3 style="margin-bottom:1.5rem">Your NFT Receipt Collection</h3>
+          <div id="myNFTs" class="nft-gallery">
+            <div class="page-loader" style="grid-column:1/-1"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+      </div>
     </div>
   </main>
 
@@ -194,31 +133,275 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-bottom" style="justify-content:center">
-        <span>© 2026 CharityFund — Decentralized Charity Platform on Ethereum</span>
+        <span>© 2026 TrustChain — Decentralized Charity Platform on Mantle Network</span>
       </div>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/web3.js"></script>
-  <script src="js/dashboard.js"></script>
 
   <script>
-    // Update avatar initials when connected
-    window.addEventListener('walletConnected', () => {
-      const avatar = document.getElementById('myAvatar');
-      if (avatar && W3.address) {
-        avatar.textContent = W3.address.slice(2, 4).toUpperCase();
-        avatar.style = `
-          width:64px;height:64px;border-radius:50%;
-          display:flex;align-items:center;justify-content:center;
-          font-size:1.2rem;font-weight:800;flex-shrink:0;
-          ${utils.avatarStyle(W3.address)}
-        `;
-      }
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+        tab.classList.add('active');
+        document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+      });
     });
-  </script>
 
+    // Update UI based on connection
+    function updateDashboardUI() {
+      const connectPrompt = document.getElementById('connectPrompt');
+      const dashContent = document.getElementById('dashContent');
+
+      if (W3.isConnected) {
+        connectPrompt.classList.add('hidden');
+        dashContent.classList.remove('hidden');
+        loadDashboardData();
+      } else {
+        connectPrompt.classList.remove('hidden');
+        dashContent.classList.add('hidden');
+      }
+    }
+
+    window.addEventListener('walletConnected', updateDashboardUI);
+    window.addEventListener('walletDisconnected', updateDashboardUI);
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(updateDashboardUI, 500);
+    });
+
+    // Load dashboard data
+    async function loadDashboardData() {
+      if (!W3.isConnected) return;
+
+      // Update profile
+      const avatar = document.getElementById('myAvatar');
+      avatar.style = utils.avatarStyle(W3.address);
+      avatar.textContent = utils.initials(W3.address);
+
+      document.getElementById('myAddrDisplay').textContent = utils.shortAddr(W3.address);
+
+      // Network badge
+      const net = window.NETWORKS[W3.chainId];
+      document.getElementById('myNetworkBadge').textContent = net ? net.shortName : `Chain ${W3.chainId}`;
+
+      // Get balance
+      try {
+        const balance = await W3.provider.getBalance(W3.address);
+        document.getElementById('myBalance').textContent = utils.formatEth(balance) + ' MNT';
+      } catch (e) {
+        document.getElementById('myBalance').textContent = '— MNT';
+      }
+
+      // Load donor stats
+      if (W3.fundContract) {
+        try {
+          const stats = await W3.fundContract.getDonorStats(W3.address);
+          const totalDonated = utils.formatEth(stats.totalDonated);
+          document.getElementById('myTotalDonated').textContent = totalDonated + ' MNT';
+          document.getElementById('myDonationCount').textContent = stats.donationCount.toString();
+          document.getElementById('myNFTCount').textContent = stats.nftCount.toString();
+
+          // Badge tier
+          const badge = utils.donorBadge(stats.totalDonated);
+          const badgeEl = document.getElementById('myBadge');
+          badgeEl.textContent = badge.label + ' Donor';
+          badgeEl.className = `badge ${badge.color}`;
+        } catch (e) {
+          console.log('Stats not available');
+        }
+      }
+
+      // Load campaigns, donations, NFTs
+      loadMyCampaigns();
+      loadMyDonations();
+      loadMyNFTs();
+    }
+
+    // Load user's campaigns
+    async function loadMyCampaigns() {
+      const container = document.getElementById('myCampaigns');
+
+      try {
+        const allCampaigns = await loadCampaigns();
+        const myCampaigns = allCampaigns.filter(c =>
+          c.creator.toLowerCase() === W3.address.toLowerCase()
+        );
+
+        if (myCampaigns.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="padding:2rem">
+              <div class="empty-state-icon">📝</div>
+              <h4 class="empty-state-title">No Campaigns Yet</h4>
+              <p class="empty-state-desc">You haven't created any campaigns. Start one today!</p>
+              <a href="create-campaign.html" class="btn btn-primary">Create Campaign</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="grid-2">
+            ${myCampaigns.map(c => {
+              const pct = utils.progress(c.raised, c.goal);
+              return `
+                <div class="card" style="padding:1rem;cursor:pointer" onclick="window.location='campaign-detail.html?id=${c.id}'">
+                  <div style="display:flex;gap:1rem">
+                    <img src="${c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=200'}"
+                         style="width:80px;height:80px;border-radius:var(--radius-sm);object-fit:cover" />
+                    <div style="flex:1">
+                      <h4 style="margin-bottom:0.25rem;font-size:0.95rem">${c.title}</h4>
+                      <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.5rem">${utils.categoryIcon(c.category)} ${c.category}</div>
+                      <div class="progress-bar-outer" style="height:6px">
+                        <div class="progress-bar-inner" style="width:${pct}%"></div>
+                      </div>
+                      <div style="display:flex;justify-content:space-between;margin-top:0.25rem;font-size:0.75rem">
+                        <span style="color:var(--teal)">${utils.formatEth(c.raised)} MNT</span>
+                        <span style="color:var(--text-muted)">${pct.toFixed(0)}%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } catch (e) {
+        console.error('Failed to load campaigns:', e);
+        container.innerHTML = '<p style="color:var(--text-secondary)">Unable to load campaigns</p>';
+      }
+    }
+
+    // Load user's donations
+    async function loadMyDonations() {
+      const container = document.getElementById('myDonations');
+
+      if (!W3.fundContract) {
+        container.innerHTML = '<p style="color:var(--text-secondary)">Connect to a supported network to view donations</p>';
+        return;
+      }
+
+      try {
+        const donations = await W3.fundContract.getUserDonations(W3.address);
+
+        if (donations.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="padding:2rem">
+              <div class="empty-state-icon">💝</div>
+              <h4 class="empty-state-title">No Donations Yet</h4>
+              <p class="empty-state-desc">You haven't made any donations yet. Browse campaigns to start giving!</p>
+              <a href="campaigns.html" class="btn btn-primary">Browse Campaigns</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="card" style="overflow:hidden">
+            <table style="width:100%;border-collapse:collapse">
+              <thead>
+                <tr style="background:var(--bg-card)">
+                  <th style="padding:1rem;text-align:left;font-size:0.75rem;color:var(--text-muted)">CAMPAIGN</th>
+                  <th style="padding:1rem;text-align:left;font-size:0.75rem;color:var(--text-muted)">AMOUNT</th>
+                  <th style="padding:1rem;text-align:left;font-size:0.75rem;color:var(--text-muted)">DATE</th>
+                  <th style="padding:1rem;text-align:left;font-size:0.75rem;color:var(--text-muted)">NFT</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${donations.map(d => `
+                  <tr style="border-top:1px solid var(--border)">
+                    <td style="padding:1rem">
+                      <a href="campaign-detail.html?id=${d.campaignId}" style="color:var(--teal)">
+                        Campaign #${d.campaignId}
+                      </a>
+                    </td>
+                    <td style="padding:1rem;font-weight:600;color:var(--teal)">${utils.formatEth(d.amount)} MNT</td>
+                    <td style="padding:1rem;color:var(--text-secondary)">${new Date(Number(d.timestamp) * 1000).toLocaleDateString()}</td>
+                    <td style="padding:1rem">
+                      ${d.nftTokenId > 0 ? `<span class="badge badge-teal">NFT #${d.nftTokenId}</span>` : '—'}
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch (e) {
+        console.error('Failed to load donations:', e);
+        container.innerHTML = '<p style="color:var(--text-secondary)">Unable to load donation history</p>';
+      }
+    }
+
+    // Load user's NFTs
+    async function loadMyNFTs() {
+      const container = document.getElementById('myNFTs');
+
+      if (!W3.nftContract) {
+        container.innerHTML = '<p style="color:var(--text-secondary);grid-column:1/-1">Connect to a supported network to view NFTs</p>';
+        return;
+      }
+
+      try {
+        const tokenIds = await W3.nftContract.getDonorTokens(W3.address);
+
+        if (tokenIds.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="padding:2rem;grid-column:1/-1">
+              <div class="empty-state-icon">🎨</div>
+              <h4 class="empty-state-title">No NFTs Yet</h4>
+              <p class="empty-state-desc">Donate to any campaign to receive your first NFT receipt!</p>
+              <a href="campaigns.html" class="btn btn-primary">Browse Campaigns</a>
+            </div>
+          `;
+          return;
+        }
+
+        // Load NFT details
+        const nfts = await Promise.all(tokenIds.map(async (id) => {
+          const receipt = await W3.nftContract.getReceipt(id);
+          let tokenURI = null;
+          try {
+            tokenURI = await W3.nftContract.tokenURI(id);
+          } catch {}
+          return { id: id.toString(), receipt, tokenURI };
+        }));
+
+        container.innerHTML = nfts.map(nft => {
+          let imageUrl = '';
+          if (nft.tokenURI && nft.tokenURI.startsWith('data:application/json;base64,')) {
+            try {
+              const json = JSON.parse(atob(nft.tokenURI.split(',')[1]));
+              imageUrl = json.image || '';
+            } catch {}
+          }
+
+          return `
+            <div class="nft-card" onclick="viewNFT('${nft.id}')">
+              ${imageUrl ? `<img src="${imageUrl}" class="nft-image" alt="NFT #${nft.id}" />` :
+                `<div class="nft-image" style="display:flex;align-items:center;justify-content:center;background:var(--gradient-card)">
+                  <span style="font-size:3rem">🏅</span>
+                </div>`}
+              <div class="nft-info">
+                <div class="nft-title">Receipt #${nft.id}</div>
+                <div class="nft-tier">${nft.receipt.tier} Tier • ${utils.formatEth(nft.receipt.amount)} MNT</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Failed to load NFTs:', e);
+        container.innerHTML = '<p style="color:var(--text-secondary);grid-column:1/-1">Unable to load NFTs</p>';
+      }
+    }
+
+    function viewNFT(tokenId) {
+      // Could open a modal with full NFT details
+      toast.info(`Viewing NFT #${tokenId}`);
+    }
+  </script>
 </body>
 </html>

@@ -1,0 +1,36 @@
+{
+  "name": "trustchain-web3-charity",
+  "version": "1.0.0",
+  "description": "TrustChain Web3 Decentralized Charity Platform on Mantle Network",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy:testnet": "npx hardhat run scripts/deploy.js --network mantleSepolia",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.js --network mantleMainnet",
+    "verify:testnet": "npx hardhat run scripts/verify.js --network mantleSepolia",
+    "verify:mainnet": "npx hardhat run scripts/verify.js --network mantleMainnet",
+    "dev": "npx http-server . -p 3000 -c-1",
+    "clean": "npx hardhat clean"
+  },
+  "keywords": [
+    "web3",
+    "charity",
+    "blockchain",
+    "mantle",
+    "ethereum",
+    "solidity",
+    "dapp"
+  ],
+  "author": "TrustChain",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.1",
+    "hardhat": "^2.19.4",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1"
+  }
+}

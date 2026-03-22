@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Campaign — CharityFund</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <title>Campaign — TrustChain</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -12,26 +12,24 @@
   <!-- NAVBAR -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">💚</div>
-      <span class="brand-text">CharityFund</span>
+      <div class="brand-icon">🔗</div>
+      <span class="brand-text">TrustChain</span>
     </a>
     <div class="navbar-links">
-      <a href="index.html"            class="nav-link">Home</a>
-      <a href="campaigns.html"        class="nav-link">Campaigns</a>
-      <a href="create-campaign.html"  class="nav-link">Start Campaign</a>
-      <a href="dashboard.html"        class="nav-link">Dashboard</a>
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="campaigns.html" class="nav-link">Campaigns</a>
+      <a href="create-campaign.html" class="nav-link">Start Campaign</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
     </div>
     <div class="navbar-right">
-      <div class="wallet-info">
-        <span class="wallet-dot disconnected"></span>
-        <span data-wallet-addr>Not connected</span>
-      </div>
+      <div data-network-indicator class="hidden"></div>
       <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
     </div>
-    <button class="hamburger"><span></span><span></span><span></span></button>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
-  <!-- MAIN — populated by detail.js -->
+  <!-- MAIN — populated by script -->
   <main id="mainContent">
     <div class="page-loader" style="min-height:70vh">
       <div class="spinner"></div>
@@ -39,18 +37,455 @@
     </div>
   </main>
 
+  <!-- DONATE MODAL -->
+  <div class="modal-overlay hidden" id="donateModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Donate to Campaign</h3>
+        <button class="modal-close" onclick="closeModal('donateModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Donation Amount (MNT)</label>
+          <input type="number" id="donateAmount" class="form-control" placeholder="0.1" step="0.001" min="0.001" />
+        </div>
+        <div class="card" style="padding:1rem;margin:1rem 0;background:var(--bg-card)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem">
+            <span style="color:var(--text-secondary)">You'll receive:</span>
+            <span id="tierPreview" style="font-weight:600;color:var(--teal)">Bronze NFT</span>
+          </div>
+          <div style="font-size:0.75rem;color:var(--text-muted)">
+            🥉 Bronze: 0.001+ MNT | 🥈 Silver: 0.01+ MNT | 🥇 Gold: 0.1+ MNT | 💎 Diamond: 1+ MNT
+          </div>
+        </div>
+        <button class="btn btn-primary w-full" id="confirmDonateBtn" onclick="confirmDonate()">
+          Confirm Donation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOTE MODAL -->
+  <div class="modal-overlay hidden" id="voteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Vote on Campaign</h3>
+        <button class="modal-close" onclick="closeModal('voteModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="color:var(--text-secondary);margin-bottom:1.5rem">
+          Your vote helps the community identify trustworthy campaigns. Each address can vote once per campaign.
+        </p>
+        <div style="display:flex;gap:1rem">
+          <button class="btn btn-primary" style="flex:1" onclick="submitVote(true)">
+            👍 Support
+          </button>
+          <button class="btn btn-secondary" style="flex:1" onclick="submitVote(false)">
+            👎 Against
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer class="footer">
     <div class="container">
       <div class="footer-bottom" style="justify-content:center">
-        <span>© 2026 CharityFund — Decentralized Charity Platform on Ethereum</span>
+        <span>© 2026 TrustChain — Decentralized Charity Platform on Mantle Network</span>
       </div>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/web3.js"></script>
-  <script src="js/detail.js"></script>
+
+  <script>
+    let campaign = null;
+    let campaignId = null;
+
+    // Get campaign ID from URL
+    const params = new URLSearchParams(window.location.search);
+    campaignId = params.get('id');
+
+    if (!campaignId) {
+      window.location.href = 'campaigns.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadCampaignDetail);
+    window.addEventListener('walletConnected', loadCampaignDetail);
+
+    async function loadCampaignDetail() {
+      campaign = await loadCampaign(campaignId);
+
+      if (!campaign) {
+        document.getElementById('mainContent').innerHTML = `
+          <div class="container" style="padding:5rem 0;text-align:center">
+            <div style="font-size:4rem;margin-bottom:1rem">🔍</div>
+            <h2>Campaign Not Found</h2>
+            <p style="color:var(--text-secondary);margin:1rem 0">The campaign you're looking for doesn't exist.</p>
+            <a href="campaigns.html" class="btn btn-primary">Browse Campaigns</a>
+          </div>
+        `;
+        return;
+      }
+
+      document.title = `${campaign.title} — TrustChain`;
+      renderCampaignDetail();
+    }
+
+    function renderCampaignDetail() {
+      const c = campaign;
+      const pct = utils.progress(c.raised, c.goal);
+      const raised = utils.formatEth(c.raised);
+      const goal = utils.formatEth(c.goal);
+      const isOwner = W3.address && W3.address.toLowerCase() === c.creator.toLowerCase();
+      const isActive = c.active && c.deadline > Math.floor(Date.now() / 1000);
+      const canWithdraw = isOwner && !c.withdrawn && (pct >= 100 || c.deadline < Math.floor(Date.now() / 1000));
+      const imgSrc = c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1200&auto=format';
+
+      document.getElementById('mainContent').innerHTML = `
+        <section class="section" style="padding-top:calc(var(--nav-height) + 2rem)">
+          <div class="container">
+            <!-- Breadcrumb -->
+            <div style="margin-bottom:1.5rem">
+              <a href="campaigns.html" style="color:var(--text-secondary);font-size:0.875rem">
+                ← Back to Campaigns
+              </a>
+            </div>
+
+            <div class="campaign-detail-grid">
+              <!-- Left Column -->
+              <div>
+                <div class="card" style="overflow:hidden">
+                  <img src="${imgSrc}" alt="${c.title}" style="width:100%;aspect-ratio:16/9;object-fit:cover"
+                       onerror="this.src='https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1200&auto=format'" />
+                </div>
+
+                <div class="card" style="margin-top:1.5rem;padding:1.5rem">
+                  <h3 style="margin-bottom:1rem">About this Campaign</h3>
+                  <p style="color:var(--text-secondary);line-height:1.8;white-space:pre-wrap">${c.description}</p>
+
+                  ${c.ipfsHash ? `
+                    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+                      <span style="font-size:0.75rem;color:var(--text-muted)">IPFS Hash:</span>
+                      <code style="font-size:0.8rem;color:var(--teal);word-break:break-all">${c.ipfsHash}</code>
+                    </div>
+                  ` : ''}
+                </div>
+
+                <!-- Donors Section -->
+                <div class="card" style="margin-top:1.5rem;padding:1.5rem">
+                  <h3 style="margin-bottom:1rem">Recent Donors (${c.donorCount || 0})</h3>
+                  <div id="donorsList">
+                    <div style="color:var(--text-secondary);font-size:0.875rem">Loading donors...</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Right Column (Sticky) -->
+              <div class="sticky" style="top:calc(var(--nav-height) + 1rem)">
+                <div class="card card-gradient" style="padding:1.5rem">
+                  <!-- Category & Status -->
+                  <div style="display:flex;gap:0.5rem;margin-bottom:1rem">
+                    <span class="badge badge-purple">${utils.categoryIcon(c.category)} ${c.category}</span>
+                    ${utils.statusBadge(c)}
+                  </div>
+
+                  <h1 style="font-size:1.5rem;margin-bottom:1rem">${c.title}</h1>
+
+                  <!-- Progress -->
+                  <div style="margin-bottom:1.5rem">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem">
+                      <span style="font-size:1.5rem;font-weight:700;color:var(--teal)">${raised} MNT</span>
+                      <span style="color:var(--text-secondary)">of ${goal} MNT</span>
+                    </div>
+                    <div class="progress-bar-outer" style="height:12px;border-radius:6px">
+                      <div class="progress-bar-inner" style="width:${pct}%;border-radius:6px"></div>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.8rem;color:var(--text-secondary)">
+                      <span>${pct.toFixed(1)}% funded</span>
+                      <span>⏱ ${utils.timeLeft(c.deadline)}</span>
+                    </div>
+                  </div>
+
+                  <!-- Stats -->
+                  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem">
+                    <div style="text-align:center">
+                      <div style="font-size:1.25rem;font-weight:700">${c.donorCount || 0}</div>
+                      <div style="font-size:0.7rem;color:var(--text-secondary)">Donors</div>
+                    </div>
+                    <div style="text-align:center">
+                      <div style="font-size:1.25rem;font-weight:700;color:var(--teal)">${c.voteCount || 0}</div>
+                      <div style="font-size:0.7rem;color:var(--text-secondary)">Supports</div>
+                    </div>
+                    <div style="text-align:center">
+                      <div style="font-size:1.25rem;font-weight:700;color:var(--red-warn)">−${c.againstCount || 0}</div>
+                      <div style="font-size:0.7rem;color:var(--text-secondary)">Against</div>
+                    </div>
+                  </div>
+
+                  <!-- Action Buttons -->
+                  <div style="display:flex;flex-direction:column;gap:0.75rem">
+                    ${isActive ? `
+                      <button class="btn btn-primary btn-lg w-full" onclick="openDonateModal()">
+                        💎 Donate Now
+                      </button>
+                      <button class="btn btn-secondary w-full" onclick="openModal('voteModal')">
+                        🗳️ Vote on Campaign
+                      </button>
+                    ` : ''}
+
+                    ${canWithdraw ? `
+                      <button class="btn btn-primary btn-lg w-full" onclick="withdrawFunds()">
+                        💰 Withdraw Funds
+                      </button>
+                    ` : ''}
+
+                    ${isOwner && isActive ? `
+                      <button class="btn btn-outline w-full" style="color:var(--red-warn);border-color:var(--red-warn)" onclick="cancelCampaign()">
+                        ❌ Cancel Campaign
+                      </button>
+                    ` : ''}
+                  </div>
+
+                  <!-- Creator -->
+                  <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)">
+                    <div style="font-size:0.7rem;color:var(--text-muted);margin-bottom:0.25rem">CREATED BY</div>
+                    <div style="display:flex;align-items:center;gap:0.5rem">
+                      <div style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;${utils.avatarStyle(c.creator)}">
+                        ${utils.initials(c.creator)}
+                      </div>
+                      <a href="profile.html?address=${c.creator}" style="font-family:monospace;font-size:0.85rem;color:var(--teal)">
+                        ${utils.shortAddr(c.creator)}
+                      </a>
+                      ${isOwner ? '<span class="badge badge-teal" style="font-size:0.65rem">You</span>' : ''}
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Share -->
+                <div class="card" style="margin-top:1rem;padding:1rem">
+                  <div style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.75rem">Share this campaign</div>
+                  <div style="display:flex;gap:0.5rem">
+                    <button class="btn btn-secondary btn-sm" onclick="shareCampaign('twitter')">𝕏 Twitter</button>
+                    <button class="btn btn-secondary btn-sm" onclick="shareCampaign('copy')">📋 Copy Link</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      `;
+
+      loadDonors();
+    }
+
+    async function loadDonors() {
+      const donorsList = document.getElementById('donorsList');
+      if (!donorsList) return;
+
+      // Use demo data if no contract / no real donors
+      const demoDonors = [
+        { address: '0xAbCd...1234', amount: '0.5', tier: 'Gold' },
+        { address: '0xBcDe...5678', amount: '0.1', tier: 'Silver' },
+        { address: '0xCdEf...9012', amount: '0.05', tier: 'Bronze' }
+      ];
+
+      if (W3.fundContract) {
+        try {
+          const donations = await W3.fundContract.getCampaignDonations(campaignId);
+          if (donations.length > 0) {
+            donorsList.innerHTML = donations.slice(-10).reverse().map(d => `
+              <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--border)">
+                <div style="width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.7rem;${utils.avatarStyle(d.donor)}">
+                  ${utils.initials(d.donor)}
+                </div>
+                <div style="flex:1">
+                  <a href="profile.html?address=${d.donor}" style="font-family:monospace;font-size:0.85rem">${utils.shortAddr(d.donor)}</a>
+                  <div style="font-size:0.75rem;color:var(--text-muted)">${new Date(Number(d.timestamp) * 1000).toLocaleDateString()}</div>
+                </div>
+                <div style="text-align:right">
+                  <div style="font-weight:600;color:var(--teal)">${utils.formatEth(d.amount)} MNT</div>
+                </div>
+              </div>
+            `).join('');
+            return;
+          }
+        } catch (e) {
+          console.error('Failed to load donors:', e);
+        }
+      }
+
+      // Show demo
+      donorsList.innerHTML = demoDonors.map(d => `
+        <div style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem 0;border-bottom:1px solid var(--border)">
+          <div style="width:36px;height:36px;border-radius:50%;background:var(--gradient-main);display:flex;align-items:center;justify-content:center;font-size:0.7rem">
+            ${d.address.slice(-2)}
+          </div>
+          <div style="flex:1">
+            <span style="font-family:monospace;font-size:0.85rem">${d.address}</span>
+            <div style="font-size:0.75rem;color:var(--text-muted)">${d.tier} Donor</div>
+          </div>
+          <div style="font-weight:600;color:var(--teal)">${d.amount} MNT</div>
+        </div>
+      `).join('');
+    }
+
+    // Donate functions
+    function openDonateModal() {
+      if (!W3.isConnected) {
+        toast.warning('Please connect your wallet first');
+        connectWallet();
+        return;
+      }
+      openModal('donateModal');
+      updateTierPreview();
+    }
+
+    document.getElementById('donateAmount')?.addEventListener('input', updateTierPreview);
+
+    function updateTierPreview() {
+      const amount = parseFloat(document.getElementById('donateAmount')?.value || 0);
+      const tierPreview = document.getElementById('tierPreview');
+      if (!tierPreview) return;
+
+      if (amount >= 1) tierPreview.textContent = '💎 Diamond NFT';
+      else if (amount >= 0.1) tierPreview.textContent = '🥇 Gold NFT';
+      else if (amount >= 0.01) tierPreview.textContent = '🥈 Silver NFT';
+      else tierPreview.textContent = '🥉 Bronze NFT';
+    }
+
+    async function confirmDonate() {
+      const amount = document.getElementById('donateAmount')?.value;
+      if (!amount || parseFloat(amount) <= 0) {
+        toast.error('Please enter a valid amount');
+        return;
+      }
+
+      if (!W3.fundContract) {
+        toast.error('Contract not available. Please check your network.');
+        return;
+      }
+
+      const btn = document.getElementById('confirmDonateBtn');
+      btn.disabled = true;
+      btn.textContent = 'Processing...';
+
+      try {
+        const tx = await W3.fundContract.donate(campaignId, {
+          value: ethers.parseEther(amount)
+        });
+
+        toast.info('Transaction submitted...');
+        closeModal('donateModal');
+
+        const receipt = await tx.wait();
+
+        toast.success(`Donated ${amount} MNT successfully!`);
+        loadCampaignDetail();
+
+      } catch (err) {
+        console.error('Donate error:', err);
+        if (err.code === 'ACTION_REJECTED') {
+          toast.warning('Transaction rejected');
+        } else {
+          toast.error(err.reason || err.message || 'Donation failed');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Confirm Donation';
+      }
+    }
+
+    // Vote
+    async function submitVote(support) {
+      if (!W3.isConnected) {
+        toast.warning('Please connect your wallet first');
+        connectWallet();
+        return;
+      }
+
+      if (!W3.fundContract) {
+        toast.error('Contract not available');
+        return;
+      }
+
+      try {
+        const tx = await W3.fundContract.vote(campaignId, support);
+        toast.info('Vote submitted...');
+        closeModal('voteModal');
+
+        await tx.wait();
+        toast.success('Vote recorded!');
+        loadCampaignDetail();
+
+      } catch (err) {
+        console.error('Vote error:', err);
+        if (err.reason?.includes('Already voted')) {
+          toast.warning('You have already voted on this campaign');
+        } else {
+          toast.error(err.reason || 'Vote failed');
+        }
+      }
+    }
+
+    // Withdraw
+    async function withdrawFunds() {
+      if (!W3.fundContract) {
+        toast.error('Contract not available');
+        return;
+      }
+
+      try {
+        const tx = await W3.fundContract.withdraw(campaignId);
+        toast.info('Withdrawal pending...');
+
+        await tx.wait();
+        toast.success('Funds withdrawn successfully!');
+        loadCampaignDetail();
+
+      } catch (err) {
+        console.error('Withdraw error:', err);
+        toast.error(err.reason || 'Withdrawal failed');
+      }
+    }
+
+    // Cancel
+    async function cancelCampaign() {
+      if (!confirm('Are you sure you want to cancel this campaign? All donors will be refunded.')) return;
+
+      if (!W3.fundContract) {
+        toast.error('Contract not available');
+        return;
+      }
+
+      try {
+        const tx = await W3.fundContract.cancelCampaign(campaignId);
+        toast.info('Cancellation pending...');
+
+        await tx.wait();
+        toast.success('Campaign cancelled and donors refunded');
+        loadCampaignDetail();
+
+      } catch (err) {
+        console.error('Cancel error:', err);
+        toast.error(err.reason || 'Cancellation failed');
+      }
+    }
+
+    // Share
+    function shareCampaign(platform) {
+      const url = window.location.href;
+      const title = encodeURIComponent(`Support "${campaign.title}" on TrustChain!`);
+
+      if (platform === 'twitter') {
+        window.open(`https://twitter.com/intent/tweet?text=${title}&url=${encodeURIComponent(url)}`, '_blank');
+      } else if (platform === 'copy') {
+        utils.copy(url);
+      }
+    }
+  </script>
 </body>
 </html>

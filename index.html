@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="CharityFund — The decentralized charity platform powered by Ethereum. Transparent, trustless, and borderless fundraising." />
-  <title>CharityFund — Decentralized Charity Platform</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <meta name="description" content="TrustChain — The decentralized charity platform powered by Mantle Network. Transparent, trustless, and borderless fundraising." />
+  <title>TrustChain — Decentralized Charity Platform on Mantle</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -13,23 +13,20 @@
   <!-- ══════════════════════ NAVBAR ══════════════════════ -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">💚</div>
-      <span class="brand-text">CharityFund</span>
+      <div class="brand-icon">🔗</div>
+      <span class="brand-text">TrustChain</span>
     </a>
 
     <div class="navbar-links">
-      <a href="index.html"            class="nav-link active">Home</a>
-      <a href="campaigns.html"        class="nav-link">Campaigns</a>
-      <a href="create-campaign.html"  class="nav-link">Start Campaign</a>
-      <a href="dashboard.html"        class="nav-link">Dashboard</a>
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="campaigns.html" class="nav-link">Campaigns</a>
+      <a href="create-campaign.html" class="nav-link">Start Campaign</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
     </div>
 
     <div class="navbar-right">
-      <div class="wallet-info">
-        <span class="wallet-dot disconnected"></span>
-        <span data-wallet-addr>Not connected</span>
-        <span data-network-name style="color:var(--teal);font-size:0.72rem"></span>
-      </div>
+      <div data-network-indicator class="hidden"></div>
       <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
     </div>
 
@@ -51,7 +48,7 @@
       <div class="hero-content fade-up">
         <div class="hero-eyebrow">
           <span>🔗</span>
-          <span>Powered by Ethereum Blockchain</span>
+          <span>Powered by Mantle Network</span>
         </div>
 
         <h1 class="hero-title">
@@ -60,7 +57,7 @@
         </h1>
 
         <p class="hero-desc">
-          Create campaigns, donate with crypto, vote on causes, and receive NFT receipts — all secured by smart contracts on Ethereum. Zero middlemen. 100% transparent.
+          Create campaigns, donate with crypto, vote on causes, and receive NFT receipts — all secured by smart contracts on Mantle. Zero middlemen. 100% transparent.
         </p>
 
         <div class="hero-actions">
@@ -74,7 +71,7 @@
 
         <div style="display:flex;gap:2rem;margin-top:2.5rem;flex-wrap:wrap">
           <div>
-            <div style="font-size:1.5rem;font-weight:900;color:var(--teal)" id="heroRaised">0 ETH</div>
+            <div style="font-size:1.5rem;font-weight:900;color:var(--teal)" id="heroRaised">0 MNT</div>
             <div style="font-size:0.75rem;color:var(--text-secondary)">Total Raised</div>
           </div>
           <div>
@@ -97,7 +94,7 @@
       <div class="grid-4" id="statsGrid">
         <div class="card stat-card fade-up stagger-1">
           <div class="stat-value" id="stat-raised">—</div>
-          <div class="stat-label">ETH Raised On-Chain</div>
+          <div class="stat-label">MNT Raised On-Chain</div>
         </div>
         <div class="card stat-card fade-up stagger-2">
           <div class="stat-value" id="stat-campaigns">—</div>
@@ -122,11 +119,10 @@
       <div class="section-header">
         <p class="section-eyebrow">Live On-Chain</p>
         <h2 class="section-title">Featured <span class="gradient-text">Campaigns</span></h2>
-        <p class="section-desc">Donate with ETH and receive an NFT receipt as proof of your generosity.</p>
+        <p class="section-desc">Donate with MNT and receive an NFT receipt as proof of your generosity.</p>
       </div>
 
       <div class="grid-3" id="featuredCampaigns">
-        <!-- Injected by JS -->
         <div class="page-loader" style="grid-column:1/-1"><div class="spinner"></div></div>
       </div>
 
@@ -149,7 +145,7 @@
           <div class="step-icon">🦊</div>
           <p class="step-number">Step 01</p>
           <h3 class="step-title">Connect Wallet</h3>
-          <p class="step-desc">Connect your MetaMask wallet to authenticate without any signup or personal data.</p>
+          <p class="step-desc">Connect MetaMask, Phantom, OKX, Coinbase, or any Web3 wallet to authenticate.</p>
         </div>
         <div class="card step-card fade-up stagger-2">
           <div class="step-icon">🌍</div>
@@ -160,8 +156,8 @@
         <div class="card step-card fade-up stagger-3">
           <div class="step-icon">💎</div>
           <p class="step-number">Step 03</p>
-          <h3 class="step-title">Donate with ETH</h3>
-          <p class="step-desc">Send ETH directly to the campaign smart contract. No intermediaries, no fees beyond gas.</p>
+          <h3 class="step-title">Donate with MNT</h3>
+          <p class="step-desc">Send MNT directly to the campaign smart contract. No intermediaries, minimal fees.</p>
         </div>
         <div class="card step-card fade-up stagger-4">
           <div class="step-icon">🏅</div>
@@ -178,17 +174,17 @@
     <div class="container">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center">
         <div class="fade-up">
-          <p class="section-eyebrow">Why Blockchain</p>
+          <p class="section-eyebrow">Why Mantle Network</p>
           <h2 class="section-title">Built with <span class="gradient-text">Trust at the Core</span></h2>
           <p style="color:var(--text-secondary);margin:1.25rem 0 2rem;line-height:1.8">
-            Traditional charity platforms take 5–30% in fees and require blind trust. CharityFund uses Ethereum smart contracts to guarantee every donation reaches its destination with full transparency.
+            Traditional charity platforms take 5–30% in fees and require blind trust. TrustChain uses Mantle Network smart contracts to guarantee every donation reaches its destination with full transparency.
           </p>
           <ul class="feature-list">
-            <li>Zero platform fees — gas only</li>
+            <li>Low gas fees on Mantle Network</li>
             <li>Immutable on-chain donation records</li>
             <li>Creator can only withdraw after goal or deadline</li>
             <li>Community governance voting on campaigns</li>
-            <li>NFT receipts as tax-deductible proof</li>
+            <li>NFT receipts as proof of donation</li>
             <li>Open-source smart contracts, auditable by anyone</li>
           </ul>
           <div style="margin-top:2rem">
@@ -204,14 +200,14 @@
                 <tr style="color:var(--text-secondary);text-align:left">
                   <th style="padding:0.5rem 0">Feature</th>
                   <th style="padding:0.5rem;text-align:center">Traditional</th>
-                  <th style="padding:0.5rem;text-align:center;color:var(--teal)">CharityFund</th>
+                  <th style="padding:0.5rem;text-align:center;color:var(--teal)">TrustChain</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style="border-top:1px solid var(--border)">
                   <td style="padding:0.65rem 0">Platform Fees</td>
                   <td style="text-align:center;color:#ff6b78">5–30%</td>
-                  <td style="text-align:center;color:var(--teal)">0%</td>
+                  <td style="text-align:center;color:var(--teal)">2.5%</td>
                 </tr>
                 <tr style="border-top:1px solid var(--border)">
                   <td style="padding:0.65rem 0">Fund Transparency</td>
@@ -234,9 +230,9 @@
                   <td style="text-align:center;color:var(--teal)">Wallet Only</td>
                 </tr>
                 <tr style="border-top:1px solid var(--border)">
-                  <td style="padding:0.65rem 0">Censorship Resistant</td>
-                  <td style="text-align:center;color:#ff6b78">❌</td>
-                  <td style="text-align:center;color:var(--teal)">✅</td>
+                  <td style="padding:0.65rem 0">Gas Fees</td>
+                  <td style="text-align:center;color:var(--text-secondary)">N/A</td>
+                  <td style="text-align:center;color:var(--teal)">Very Low (Mantle)</td>
                 </tr>
               </tbody>
             </table>
@@ -265,9 +261,9 @@
     <div class="container">
       <div class="card card-gradient" style="padding:3.5rem 2rem;text-align:center;position:relative;overflow:hidden">
         <div style="position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:var(--teal);border-radius:50%;filter:blur(80px);opacity:0.15"></div>
-        <div style="position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;background:var(--purple);border-radius:50%;filter:blur:80px;opacity:0.15"></div>
+        <div style="position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;background:var(--purple);border-radius:50%;filter:blur(80px);opacity:0.15"></div>
         <div style="position:relative;z-index:2">
-          <div style="font-size:3rem;margin-bottom:1rem">💚</div>
+          <div style="font-size:3rem;margin-bottom:1rem">🔗</div>
           <h2 style="font-size:clamp(1.5rem,3vw,2.2rem);margin-bottom:1rem">
             Ready to make a difference?
           </h2>
@@ -289,10 +285,10 @@
       <div class="footer-grid">
         <div class="footer-brand-col">
           <div class="navbar-brand" style="position:static">
-            <div class="brand-icon">💚</div>
-            <span class="brand-text">CharityFund</span>
+            <div class="brand-icon">🔗</div>
+            <span class="brand-text">TrustChain</span>
           </div>
-          <p>The world's first fully decentralized charity platform. Powered by Ethereum smart contracts.</p>
+          <p>The decentralized charity platform. Powered by Mantle Network smart contracts.</p>
           <div style="margin-top:1rem;display:flex;gap:0.5rem">
             <a href="#" class="btn btn-secondary btn-sm">GitHub</a>
             <a href="#" class="btn btn-secondary btn-sm">Docs</a>
@@ -305,7 +301,7 @@
             <li><a href="campaigns.html">Browse Campaigns</a></li>
             <li><a href="create-campaign.html">Start a Campaign</a></li>
             <li><a href="dashboard.html">My Dashboard</a></li>
-            <li><a href="dashboard.html">Leaderboard</a></li>
+            <li><a href="leaderboard.html">Leaderboard</a></li>
           </ul>
         </div>
         <div>
@@ -320,25 +316,25 @@
         <div>
           <p class="footer-col-title">Network</p>
           <ul class="footer-links">
-            <li><a href="https://etherscan.io" target="_blank">Etherscan</a></li>
+            <li><a href="https://mantlescan.xyz" target="_blank">MantleScan</a></li>
             <li><a href="https://metamask.io" target="_blank">MetaMask</a></li>
-            <li><a href="https://ethereum.org" target="_blank">Ethereum.org</a></li>
+            <li><a href="https://mantle.xyz" target="_blank">Mantle.xyz</a></li>
             <li><a href="https://hardhat.org" target="_blank">Hardhat</a></li>
           </ul>
         </div>
       </div>
       <div class="footer-bottom">
-        <span>© 2026 CharityFund. Built on Ethereum. All rights reserved.</span>
+        <span>© 2026 TrustChain. Built on Mantle Network. All rights reserved.</span>
         <span style="display:flex;align-items:center;gap:0.4rem">
-          <span class="wallet-dot" style="width:6px;height:6px"></span>
-          Mainnet
+          <span class="network-dot mainnet" style="width:6px;height:6px"></span>
+          Mantle Network
         </span>
       </div>
     </div>
   </footer>
 
   <!-- ══════════════════════ SCRIPTS ══════════════════════ -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/web3.js"></script>
 
@@ -349,10 +345,9 @@
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
       let particles = [];
-      let animId;
 
       function resize() {
-        canvas.width  = window.innerWidth;
+        canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
       }
       resize();
@@ -366,7 +361,7 @@
           dx: (Math.random() - 0.5) * 0.3,
           dy: (Math.random() - 0.5) * 0.3,
           alpha: Math.random() * 0.5 + 0.1,
-          color: Math.random() > 0.5 ? '0,212,170' : '124,58,237',
+          color: Math.random() > 0.5 ? '0,212,170' : '124,58,237'
         });
       }
 
@@ -384,7 +379,7 @@
           ctx.fillStyle = `rgba(${p.color},${p.alpha})`;
           ctx.fill();
         });
-        animId = requestAnimationFrame(draw);
+        requestAnimationFrame(draw);
       }
       draw();
     })();
@@ -392,9 +387,8 @@
     // ── Load Stats ──────────────────────────────────────
     async function getAndRenderStats() {
       const stats = await loadStats();
-      const campaigns = await loadCampaigns();
 
-      const raised = parseFloat(ethers.utils.formatEther(stats.raised));
+      const raised = parseFloat(ethers.formatEther(stats.raised));
       const totalCampaigns = parseInt(stats.campaigns);
       const donors = parseInt(stats.donors);
 
@@ -402,7 +396,7 @@
       animateCounter(document.getElementById('heroCampaigns'), totalCampaigns);
       animateCounter(document.getElementById('heroDonors'), donors);
 
-      document.getElementById('stat-raised').textContent = raised.toFixed(1) + ' ETH';
+      document.getElementById('stat-raised').textContent = raised.toFixed(1) + ' MNT';
       document.getElementById('stat-campaigns').textContent = totalCampaigns;
       document.getElementById('stat-donors').textContent = donors.toLocaleString();
     }
@@ -415,14 +409,14 @@
       if (!grid) return;
 
       grid.innerHTML = featured.map((c, i) => {
-        const pct     = utils.progress(c.raised, c.goal);
-        const raised  = utils.formatEth(c.raised);
-        const goal    = utils.formatEth(c.goal);
+        const pct = utils.progress(c.raised, c.goal);
+        const raised = utils.formatEth(c.raised);
+        const goal = utils.formatEth(c.goal);
         const catIcon = utils.categoryIcon(c.category);
-        const imgSrc  = c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format';
+        const imgSrc = c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format';
 
         return `
-          <article class="card campaign-card fade-up stagger-${i+1}"
+          <article class="card campaign-card fade-up stagger-${i + 1}"
                    onclick="window.location='campaign-detail.html?id=${c.id}'"
                    style="cursor:pointer">
             <div class="campaign-card-img-wrapper">
@@ -436,8 +430,8 @@
               <p class="campaign-card-desc">${c.description}</p>
               <div class="progress-wrap">
                 <div class="progress-info">
-                  <span class="progress-raised">${raised} ETH</span>
-                  <span class="progress-goal">of ${goal} ETH</span>
+                  <span class="progress-raised">${raised} MNT</span>
+                  <span class="progress-goal">of ${goal} MNT</span>
                 </div>
                 <div class="progress-bar-outer">
                   <div class="progress-bar-inner" style="width:${pct}%"></div>
@@ -460,8 +454,8 @@
       if (!grid) return;
 
       const cats = window.CATEGORIES.filter(c => c.value !== 'all');
-      grid.innerHTML = cats.map((cat, i) => `
-        <a href="campaigns.html?cat=${cat.value}" class="card" style="padding:1.5rem;text-align:center;cursor:pointer;text-decoration:none;display:block" class="fade-up">
+      grid.innerHTML = cats.map(cat => `
+        <a href="campaigns.html?cat=${cat.value}" class="card fade-up" style="padding:1.5rem;text-align:center;cursor:pointer;text-decoration:none;display:block">
           <div style="font-size:2.2rem;margin-bottom:0.75rem">${cat.icon}</div>
           <div style="font-weight:700;font-size:0.9rem">${cat.label}</div>
         </a>
@@ -472,7 +466,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       await Promise.all([
         getAndRenderStats(),
-        renderFeatured(),
+        renderFeatured()
       ]);
       renderCategories();
     });

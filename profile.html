@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — TrustChain</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <a href="index.html" class="navbar-brand">
+      <div class="brand-icon">🔗</div>
+      <span class="brand-text">TrustChain</span>
+    </a>
+    <div class="navbar-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="campaigns.html" class="nav-link">Campaigns</a>
+      <a href="create-campaign.html" class="nav-link">Start Campaign</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
+    </div>
+    <div class="navbar-right">
+      <div data-network-indicator class="hidden"></div>
+      <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
+    </div>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </nav>
+
+  <!-- MAIN -->
+  <main style="padding-top:calc(var(--nav-height) + 2rem);padding-bottom:5rem">
+    <div class="container">
+      <div id="profileContent">
+        <div class="page-loader" style="min-height:50vh"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom" style="justify-content:center">
+        <span>© 2026 TrustChain — Decentralized Charity Platform on Mantle Network</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/web3.js"></script>
+
+  <script>
+    let profileAddress = null;
+
+    // Get address from URL
+    const params = new URLSearchParams(window.location.search);
+    profileAddress = params.get('address');
+
+    if (!profileAddress || !profileAddress.startsWith('0x')) {
+      document.getElementById('profileContent').innerHTML = `
+        <div class="card" style="padding:3rem;text-align:center;max-width:480px;margin:0 auto">
+          <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+          <h3>Profile Not Found</h3>
+          <p style="color:var(--text-secondary);margin:1rem 0">Invalid or missing address</p>
+          <a href="leaderboard.html" class="btn btn-primary">View Leaderboard</a>
+        </div>
+      `;
+    } else {
+      document.addEventListener('DOMContentLoaded', loadProfileData);
+      window.addEventListener('walletConnected', loadProfileData);
+      setTimeout(loadProfileData, 500);
+    }
+
+    async function loadProfileData() {
+      if (!profileAddress) return;
+
+      document.title = `${utils.shortAddr(profileAddress)} — TrustChain`;
+
+      const isOwnProfile = W3.address && W3.address.toLowerCase() === profileAddress.toLowerCase();
+
+      // Load stats
+      let stats = { totalDonated: '0', donationCount: '0', nftCount: '0' };
+      if (W3.fundContract) {
+        try {
+          const s = await W3.fundContract.getDonorStats(profileAddress);
+          stats = {
+            totalDonated: s.totalDonated.toString(),
+            donationCount: s.donationCount.toString(),
+            nftCount: s.nftCount.toString()
+          };
+        } catch (e) {
+          console.log('Could not load stats');
+        }
+      }
+
+      const badge = utils.donorBadge(stats.totalDonated);
+
+      document.getElementById('profileContent').innerHTML = `
+        <!-- Profile Header -->
+        <div class="profile-header">
+          <div class="profile-avatar" style="${utils.avatarStyle(profileAddress)}">
+            ${utils.initials(profileAddress)}
+          </div>
+          <div class="profile-info">
+            <div class="profile-address">
+              <span>${profileAddress}</span>
+              <button class="profile-copy-btn" onclick="utils.copy('${profileAddress}')">📋</button>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.25rem">
+              <span class="badge ${badge.color}">${badge.label} Donor</span>
+              ${isOwnProfile ? '<span class="badge badge-teal">Your Profile</span>' : ''}
+            </div>
+          </div>
+          <a href="${utils.explorerAddress(profileAddress)}" target="_blank" class="btn btn-secondary btn-sm" style="margin-left:auto">
+            View on Explorer ↗
+          </a>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="profile-stats-grid">
+          <div class="profile-stat">
+            <div class="profile-stat-value">${utils.formatEth(stats.totalDonated)} MNT</div>
+            <div class="profile-stat-label">Total Donated</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value">${stats.donationCount}</div>
+            <div class="profile-stat-label">Campaigns Supported</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value">${stats.nftCount}</div>
+            <div class="profile-stat-label">NFT Receipts</div>
+          </div>
+          <div class="profile-stat">
+            <div class="profile-stat-value" style="font-size:1rem">${badge.label}</div>
+            <div class="profile-stat-label">Badge Tier</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs" style="max-width:400px;margin-bottom:2rem">
+          <button class="tab active" data-tab="campaigns">Campaigns</button>
+          <button class="tab" data-tab="nfts">NFTs</button>
+        </div>
+
+        <!-- Tab: Campaigns -->
+        <div class="tab-content active" id="tab-campaigns">
+          <h3 style="margin-bottom:1.5rem">Campaigns Created</h3>
+          <div id="profileCampaigns">
+            <div class="page-loader"><div class="spinner"></div></div>
+          </div>
+        </div>
+
+        <!-- Tab: NFTs -->
+        <div class="tab-content hidden" id="tab-nfts">
+          <h3 style="margin-bottom:1.5rem">NFT Collection</h3>
+          <div id="profileNFTs" class="nft-gallery">
+            <div class="page-loader" style="grid-column:1/-1"><div class="spinner"></div></div>
+          </div>
+        </div>
+      `;
+
+      // Setup tabs
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.add('hidden'));
+          tab.classList.add('active');
+          document.getElementById(`tab-${tab.dataset.tab}`).classList.remove('hidden');
+        });
+      });
+
+      loadProfileCampaigns();
+      loadProfileNFTs();
+    }
+
+    async function loadProfileCampaigns() {
+      const container = document.getElementById('profileCampaigns');
+      if (!container) return;
+
+      try {
+        const allCampaigns = await loadCampaigns();
+        const campaigns = allCampaigns.filter(c =>
+          c.creator.toLowerCase() === profileAddress.toLowerCase()
+        );
+
+        if (campaigns.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="padding:2rem">
+              <div class="empty-state-icon">📝</div>
+              <h4 class="empty-state-title">No Campaigns</h4>
+              <p class="empty-state-desc">This address hasn't created any campaigns yet.</p>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = `
+          <div class="grid-3">
+            ${campaigns.map(c => {
+              const pct = utils.progress(c.raised, c.goal);
+              const imgSrc = c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=400';
+
+              return `
+                <div class="card campaign-card" onclick="window.location='campaign-detail.html?id=${c.id}'" style="cursor:pointer">
+                  <div class="campaign-card-img-wrapper">
+                    <img src="${imgSrc}" alt="${c.title}" class="campaign-card-img" />
+                    <span class="badge badge-purple" style="position:absolute;top:12px;left:12px">${utils.categoryIcon(c.category)} ${c.category}</span>
+                  </div>
+                  <div class="campaign-card-body">
+                    <h3 class="campaign-card-title">${c.title}</h3>
+                    <div class="progress-wrap">
+                      <div class="progress-info">
+                        <span class="progress-raised">${utils.formatEth(c.raised)} MNT</span>
+                        <span class="progress-goal">of ${utils.formatEth(c.goal)} MNT</span>
+                      </div>
+                      <div class="progress-bar-outer">
+                        <div class="progress-bar-inner" style="width:${pct}%"></div>
+                      </div>
+                    </div>
+                    <div class="campaign-card-meta">
+                      ${utils.statusBadge(c)}
+                      <span>👥 ${c.donorCount || 0}</span>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        `;
+      } catch (e) {
+        console.error('Failed to load campaigns:', e);
+        container.innerHTML = '<p style="color:var(--text-secondary)">Unable to load campaigns</p>';
+      }
+    }
+
+    async function loadProfileNFTs() {
+      const container = document.getElementById('profileNFTs');
+      if (!container) return;
+
+      if (!W3.nftContract) {
+        container.innerHTML = '<p style="color:var(--text-secondary);grid-column:1/-1">Connect wallet to view NFTs</p>';
+        return;
+      }
+
+      try {
+        const tokenIds = await W3.nftContract.getDonorTokens(profileAddress);
+
+        if (tokenIds.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state" style="padding:2rem;grid-column:1/-1">
+              <div class="empty-state-icon">🎨</div>
+              <h4 class="empty-state-title">No NFTs</h4>
+              <p class="empty-state-desc">This address doesn't have any NFT receipts yet.</p>
+            </div>
+          `;
+          return;
+        }
+
+        const nfts = await Promise.all(tokenIds.map(async (id) => {
+          const receipt = await W3.nftContract.getReceipt(id);
+          let tokenURI = null;
+          try {
+            tokenURI = await W3.nftContract.tokenURI(id);
+          } catch {}
+          return { id: id.toString(), receipt, tokenURI };
+        }));
+
+        container.innerHTML = nfts.map(nft => {
+          let imageUrl = '';
+          if (nft.tokenURI && nft.tokenURI.startsWith('data:application/json;base64,')) {
+            try {
+              const json = JSON.parse(atob(nft.tokenURI.split(',')[1]));
+              imageUrl = json.image || '';
+            } catch {}
+          }
+
+          return `
+            <div class="nft-card">
+              ${imageUrl ? `<img src="${imageUrl}" class="nft-image" alt="NFT #${nft.id}" />` :
+                `<div class="nft-image" style="display:flex;align-items:center;justify-content:center;background:var(--gradient-card)">
+                  <span style="font-size:3rem">🏅</span>
+                </div>`}
+              <div class="nft-info">
+                <div class="nft-title">Receipt #${nft.id}</div>
+                <div class="nft-tier">${nft.receipt.tier} Tier • ${utils.formatEth(nft.receipt.amount)} MNT</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error('Failed to load NFTs:', e);
+        container.innerHTML = '<p style="color:var(--text-secondary);grid-column:1/-1">Unable to load NFTs</p>';
+      }
+    }
+  </script>
+</body>
+</html>

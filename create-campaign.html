@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Create Campaign — CharityFund</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <title>Create Campaign — TrustChain</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -12,23 +12,21 @@
   <!-- NAVBAR -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">💚</div>
-      <span class="brand-text">CharityFund</span>
+      <div class="brand-icon">🔗</div>
+      <span class="brand-text">TrustChain</span>
     </a>
     <div class="navbar-links">
-      <a href="index.html"            class="nav-link">Home</a>
-      <a href="campaigns.html"        class="nav-link">Campaigns</a>
-      <a href="create-campaign.html"  class="nav-link active">Start Campaign</a>
-      <a href="dashboard.html"        class="nav-link">Dashboard</a>
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="campaigns.html" class="nav-link">Campaigns</a>
+      <a href="create-campaign.html" class="nav-link active">Start Campaign</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
     </div>
     <div class="navbar-right">
-      <div class="wallet-info">
-        <span class="wallet-dot disconnected"></span>
-        <span data-wallet-addr>Not connected</span>
-      </div>
+      <div data-network-indicator class="hidden"></div>
       <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
     </div>
-    <button class="hamburger"><span></span><span></span><span></span></button>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
   <!-- PAGE HEADER -->
@@ -37,7 +35,7 @@
       <p class="section-eyebrow">On-chain Fundraising</p>
       <h1 class="section-title">Launch Your <span class="gradient-text">Campaign</span></h1>
       <p style="color:var(--text-secondary);margin-top:0.5rem;max-width:500px">
-        Create a decentralized fundraising campaign secured by an Ethereum smart contract. Funds are held transparently on-chain.
+        Create a decentralized fundraising campaign secured by a Mantle Network smart contract. Funds are held transparently on-chain.
       </p>
     </div>
   </header>
@@ -55,131 +53,225 @@
             <div style="font-size:2.5rem;margin-bottom:1rem">🦊</div>
             <h3 style="margin-bottom:0.5rem">Connect Your Wallet</h3>
             <p style="color:var(--text-secondary);margin-bottom:1.5rem;font-size:0.9rem">
-              You need to connect MetaMask to create a campaign. The campaign will be deployed on-chain under your wallet address.
+              You need to connect your wallet to create a campaign. The campaign will be deployed on-chain under your wallet address.
             </p>
-            <button class="btn btn-primary" data-connect-btn>Connect MetaMask</button>
+            <button class="btn btn-primary" data-connect-btn>Connect Wallet</button>
           </div>
 
-          <!-- Create Form -->
+          <!-- Multi-Step Form -->
           <div id="createFormWrap" class="hidden">
-            <form id="createCampaignForm" class="card" style="padding:2rem">
-              <h3 style="margin-bottom:1.5rem;color:var(--teal)">Campaign Details</h3>
-
-              <div class="form-group">
-                <label class="form-label" for="campaignTitle">Campaign Title *</label>
-                <input
-                  type="text"
-                  id="campaignTitle"
-                  class="form-control"
-                  placeholder="e.g. Clean Water for Rural Kenya"
-                  maxlength="100"
-                  required
-                />
-                <p class="form-hint">Be specific and compelling. Your title is the first thing donors see.</p>
+            <!-- Step Indicator -->
+            <div class="card" style="padding:1rem 1.5rem;margin-bottom:1.5rem">
+              <div style="display:flex;justify-content:space-between;align-items:center">
+                <div class="step-indicator active" data-step="1">
+                  <span class="step-num">1</span>
+                  <span class="step-label">Basic Info</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-indicator" data-step="2">
+                  <span class="step-num">2</span>
+                  <span class="step-label">Details</span>
+                </div>
+                <div class="step-line"></div>
+                <div class="step-indicator" data-step="3">
+                  <span class="step-num">3</span>
+                  <span class="step-label">Preview</span>
+                </div>
               </div>
+            </div>
 
-              <div class="form-group">
-                <label class="form-label" for="category">Category *</label>
-                <select id="category" class="form-control" required>
-                  <option value="">Select a category</option>
-                  <option value="Education">📚 Education</option>
-                  <option value="Healthcare">🏥 Healthcare</option>
-                  <option value="Disaster Relief">🆘 Disaster Relief</option>
-                  <option value="Environment">🌿 Environment</option>
-                  <option value="Hunger">🍱 Hunger &amp; Food Security</option>
-                  <option value="Animal Welfare">🐾 Animal Welfare</option>
-                  <option value="Community">🤝 Community Development</option>
-                  <option value="Other">💡 Other</option>
-                </select>
-              </div>
+            <form id="createCampaignForm">
+              <!-- Step 1: Basic Info -->
+              <div class="card step-content active" id="step1" style="padding:2rem">
+                <h3 style="margin-bottom:1.5rem;color:var(--teal)">Step 1: Basic Information</h3>
 
-              <div class="form-group">
-                <label class="form-label" for="description">Description *</label>
-                <textarea
-                  id="description"
-                  class="form-control"
-                  placeholder="Describe your campaign in detail. Who will benefit? How will funds be used? What is the impact?"
-                  rows="6"
-                  maxlength="2000"
-                  required
-                ></textarea>
-                <p class="form-hint">Minimum 20 characters. Be transparent about how funds will be spent.</p>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label" for="imageUrl">Campaign Image URL</label>
-                <input
-                  type="url"
-                  id="imageUrl"
-                  class="form-control"
-                  placeholder="https://images.unsplash.com/..."
-                />
-                <p class="form-hint">Use Unsplash, IPFS, or any public image URL. Leave blank for default image.</p>
-                <img
-                  id="imgPreview"
-                  src=""
-                  alt="Preview"
-                  style="display:none;margin-top:0.75rem;width:100%;height:200px;object-fit:cover;border-radius:var(--radius-md)"
-                />
-              </div>
-
-              <div class="form-row">
                 <div class="form-group">
-                  <label class="form-label" for="goal">Fundraising Goal (ETH) *</label>
-                  <div class="input-group">
-                    <input
-                      type="number"
-                      id="goal"
-                      class="form-control"
-                      placeholder="5.0"
-                      min="0.001"
-                      step="0.001"
-                      required
-                    />
-                    <span class="input-addon">ETH</span>
-                  </div>
-                  <p class="form-hint" id="goalPreview"></p>
+                  <label class="form-label" for="campaignTitle">Campaign Title *</label>
+                  <input
+                    type="text"
+                    id="campaignTitle"
+                    class="form-control"
+                    placeholder="e.g. Clean Water for Rural Kenya"
+                    maxlength="100"
+                    required
+                  />
+                  <p class="form-hint">Be specific and compelling. Your title is the first thing donors see.</p>
                 </div>
 
                 <div class="form-group">
-                  <label class="form-label" for="duration">Duration (Days) *</label>
-                  <div class="input-group">
-                    <input
-                      type="number"
-                      id="duration"
-                      class="form-control"
-                      placeholder="30"
-                      min="1"
-                      max="365"
-                      required
-                    />
-                    <span class="input-addon">days</span>
+                  <label class="form-label" for="category">Category *</label>
+                  <select id="category" class="form-control" required>
+                    <option value="">Select a category</option>
+                    <option value="Education">📚 Education</option>
+                    <option value="Healthcare">🏥 Healthcare</option>
+                    <option value="Disaster Relief">🆘 Disaster Relief</option>
+                    <option value="Environment">🌿 Environment</option>
+                    <option value="Hunger">🍱 Hunger & Food Security</option>
+                    <option value="Animal Welfare">🐾 Animal Welfare</option>
+                    <option value="Community">🤝 Community Development</option>
+                    <option value="Technology">💻 Technology</option>
+                    <option value="Other">💡 Other</option>
+                  </select>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="description">Description *</label>
+                  <textarea
+                    id="description"
+                    class="form-control"
+                    placeholder="Describe your campaign in detail. Who will benefit? How will funds be used? What is the impact?"
+                    rows="6"
+                    maxlength="2000"
+                    required
+                  ></textarea>
+                  <p class="form-hint"><span id="charCount">0</span>/2000 characters</p>
+                </div>
+
+                <button type="button" class="btn btn-primary btn-lg w-full" onclick="nextStep(2)">
+                  Continue to Details →
+                </button>
+              </div>
+
+              <!-- Step 2: Campaign Details -->
+              <div class="card step-content hidden" id="step2" style="padding:2rem">
+                <h3 style="margin-bottom:1.5rem;color:var(--teal)">Step 2: Campaign Details</h3>
+
+                <div class="form-group">
+                  <label class="form-label" for="imageUrl">Campaign Image URL</label>
+                  <input
+                    type="url"
+                    id="imageUrl"
+                    class="form-control"
+                    placeholder="https://images.unsplash.com/..."
+                  />
+                  <p class="form-hint">Use Unsplash, IPFS, or any public image URL. Leave blank for default image.</p>
+                  <img
+                    id="imgPreview"
+                    src=""
+                    alt="Preview"
+                    style="display:none;margin-top:0.75rem;width:100%;height:200px;object-fit:cover;border-radius:var(--radius-md)"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label" for="ipfsHash">IPFS Hash (Optional)</label>
+                  <input
+                    type="text"
+                    id="ipfsHash"
+                    class="form-control"
+                    placeholder="QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco"
+                  />
+                  <p class="form-hint">Optional IPFS hash for additional campaign metadata.</p>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="goal">Fundraising Goal (MNT) *</label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        id="goal"
+                        class="form-control"
+                        placeholder="5.0"
+                        min="0.01"
+                        max="100000"
+                        step="0.01"
+                        required
+                      />
+                      <span class="input-addon">MNT</span>
+                    </div>
+                    <p class="form-hint">Min: 0.01 MNT, Max: 100,000 MNT</p>
                   </div>
-                  <p class="form-hint" id="deadlinePreview"></p>
+
+                  <div class="form-group">
+                    <label class="form-label" for="duration">Duration (Days) *</label>
+                    <div class="input-group">
+                      <input
+                        type="number"
+                        id="duration"
+                        class="form-control"
+                        placeholder="30"
+                        min="1"
+                        max="365"
+                        required
+                      />
+                      <span class="input-addon">days</span>
+                    </div>
+                    <p class="form-hint" id="deadlinePreview">Ends on: —</p>
+                  </div>
+                </div>
+
+                <div style="display:flex;gap:1rem">
+                  <button type="button" class="btn btn-secondary" style="flex:1" onclick="prevStep(1)">
+                    ← Back
+                  </button>
+                  <button type="button" class="btn btn-primary" style="flex:2" onclick="nextStep(3)">
+                    Preview Campaign →
+                  </button>
                 </div>
               </div>
 
-              <!-- Important Notes -->
-              <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1.5rem">
-                <p style="font-weight:700;font-size:0.85rem;color:var(--teal);margin-bottom:0.5rem">⚠️ Before you submit:</p>
-                <ul style="font-size:0.82rem;color:var(--text-secondary);padding-left:1rem">
-                  <li>Campaigns are deployed permanently on Ethereum blockchain</li>
-                  <li>You can only withdraw funds after the goal is met or deadline passes</li>
-                  <li>Donors will receive NFT receipts automatically</li>
-                  <li>All transactions require gas fees (ETH)</li>
-                </ul>
-              </div>
+              <!-- Step 3: Preview & Submit -->
+              <div class="card step-content hidden" id="step3" style="padding:2rem">
+                <h3 style="margin-bottom:1.5rem;color:var(--teal)">Step 3: Preview & Deploy</h3>
 
-              <button type="submit" id="submitBtn" class="btn btn-primary btn-lg w-full">
-                🚀 Deploy Campaign On-Chain
-              </button>
+                <!-- Preview Card -->
+                <div class="card" style="overflow:hidden;margin-bottom:1.5rem" id="previewCard">
+                  <div style="width:100%;height:200px;background:var(--bg-secondary)" id="previewImage"></div>
+                  <div style="padding:1.25rem">
+                    <div style="display:flex;gap:0.5rem;margin-bottom:0.75rem">
+                      <span class="badge badge-purple" id="previewCategory">Category</span>
+                    </div>
+                    <h3 id="previewTitle" style="margin-bottom:0.5rem">Campaign Title</h3>
+                    <p id="previewDesc" style="color:var(--text-secondary);font-size:0.875rem;line-height:1.6;max-height:60px;overflow:hidden"></p>
+                    <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border)">
+                      <div style="display:flex;justify-content:space-between;font-size:0.875rem">
+                        <span style="color:var(--teal);font-weight:600" id="previewGoal">0 MNT Goal</span>
+                        <span style="color:var(--text-secondary)" id="previewDuration">30 days</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Fee Info -->
+                <div style="background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.2);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1.5rem">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:0.5rem">
+                    <span style="color:var(--text-secondary)">Platform Fee (2.5%)</span>
+                    <span id="feePreview">0 MNT</span>
+                  </div>
+                  <div style="display:flex;justify-content:space-between">
+                    <span style="color:var(--text-secondary)">You Receive (if goal met)</span>
+                    <span style="color:var(--teal);font-weight:600" id="receivePreview">0 MNT</span>
+                  </div>
+                </div>
+
+                <!-- Important Notes -->
+                <div style="background:rgba(0,212,170,0.06);border:1px solid rgba(0,212,170,0.2);border-radius:var(--radius-md);padding:1.25rem;margin-bottom:1.5rem">
+                  <p style="font-weight:700;font-size:0.85rem;color:var(--teal);margin-bottom:0.5rem">⚠️ Before you deploy:</p>
+                  <ul style="font-size:0.82rem;color:var(--text-secondary);padding-left:1rem">
+                    <li>Campaigns are deployed permanently on Mantle Network</li>
+                    <li>You can only withdraw funds after the goal is met or deadline passes</li>
+                    <li>Donors will receive NFT receipts automatically</li>
+                    <li>A small gas fee is required for deployment</li>
+                  </ul>
+                </div>
+
+                <div style="display:flex;gap:1rem">
+                  <button type="button" class="btn btn-secondary" style="flex:1" onclick="prevStep(2)">
+                    ← Back
+                  </button>
+                  <button type="submit" id="submitBtn" class="btn btn-primary" style="flex:2">
+                    🚀 Deploy Campaign On-Chain
+                  </button>
+                </div>
+              </div>
             </form>
           </div>
 
         </div>
 
         <!-- Sidebar Tips -->
-        <div class="sticky">
+        <div class="sticky" style="top:calc(var(--nav-height) + 1rem)">
           <div class="card" style="padding:1.5rem;margin-bottom:1rem">
             <h4 style="margin-bottom:1rem;color:var(--teal)">📌 Campaign Tips</h4>
             <ul class="feature-list">
@@ -197,27 +289,27 @@
             <div style="display:flex;flex-direction:column;gap:0.6rem;font-size:0.85rem">
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <span>🥉 Bronze</span>
-                <span class="badge badge-gray">&lt; 0.01 ETH</span>
+                <span class="badge badge-gray">0.001+ MNT</span>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <span>🥈 Silver</span>
-                <span class="badge badge-gray">0.01 – 0.1 ETH</span>
+                <span class="badge badge-gray">0.01+ MNT</span>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <span>🥇 Gold</span>
-                <span class="badge badge-gold">0.1 – 1 ETH</span>
+                <span class="badge badge-gold">0.1+ MNT</span>
               </div>
               <div style="display:flex;justify-content:space-between;align-items:center">
                 <span>💎 Diamond</span>
-                <span class="badge badge-teal">≥ 1 ETH</span>
+                <span class="badge badge-teal">1+ MNT</span>
               </div>
             </div>
           </div>
 
           <div class="card" style="padding:1.5rem">
-            <h4 style="margin-bottom:0.75rem">⛽ Gas Estimate</h4>
+            <h4 style="margin-bottom:0.75rem">⛽ Gas Fees</h4>
             <p style="font-size:0.82rem;color:var(--text-secondary)">
-              Creating a campaign typically costs ~0.003–0.008 ETH in gas fees on Ethereum mainnet. Consider using Sepolia testnet for testing.
+              Creating a campaign on Mantle Network has very low gas fees compared to Ethereum mainnet.
             </p>
           </div>
         </div>
@@ -226,9 +318,224 @@
     </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <style>
+    .step-indicator { display:flex; flex-direction:column; align-items:center; gap:0.25rem; }
+    .step-num { width:32px; height:32px; border-radius:50%; background:var(--bg-card); border:2px solid var(--border); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:0.875rem; transition: all 0.3s; }
+    .step-label { font-size:0.7rem; color:var(--text-muted); transition: color 0.3s; }
+    .step-indicator.active .step-num { background:var(--teal); border-color:var(--teal); color:#000; }
+    .step-indicator.active .step-label { color:var(--teal); }
+    .step-indicator.completed .step-num { background:var(--teal); border-color:var(--teal); color:#000; }
+    .step-line { flex:1; height:2px; background:var(--border); margin:0 0.5rem; }
+    .step-content { display:none; }
+    .step-content.active { display:block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media (max-width:768px) { .form-row { grid-template-columns:1fr; } }
+  </style>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/web3.js"></script>
-  <script src="js/create.js"></script>
+
+  <script>
+    let currentStep = 1;
+
+    // Show/hide form based on wallet connection
+    function updateFormVisibility() {
+      const walletRequired = document.getElementById('walletRequired');
+      const formWrap = document.getElementById('createFormWrap');
+
+      if (W3.isConnected) {
+        walletRequired.classList.add('hidden');
+        formWrap.classList.remove('hidden');
+      } else {
+        walletRequired.classList.remove('hidden');
+        formWrap.classList.add('hidden');
+      }
+    }
+
+    window.addEventListener('walletConnected', updateFormVisibility);
+    window.addEventListener('walletDisconnected', updateFormVisibility);
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(updateFormVisibility, 500);
+    });
+
+    // Step navigation
+    function nextStep(step) {
+      if (!validateStep(currentStep)) return;
+      currentStep = step;
+      updateSteps();
+      if (step === 3) updatePreview();
+    }
+
+    function prevStep(step) {
+      currentStep = step;
+      updateSteps();
+    }
+
+    function updateSteps() {
+      document.querySelectorAll('.step-content').forEach(el => el.classList.remove('active'));
+      document.getElementById(`step${currentStep}`).classList.add('active');
+
+      document.querySelectorAll('.step-indicator').forEach(el => {
+        const stepNum = parseInt(el.dataset.step);
+        el.classList.toggle('active', stepNum === currentStep);
+        el.classList.toggle('completed', stepNum < currentStep);
+      });
+    }
+
+    function validateStep(step) {
+      if (step === 1) {
+        const title = document.getElementById('campaignTitle').value.trim();
+        const category = document.getElementById('category').value;
+        const desc = document.getElementById('description').value.trim();
+
+        if (!title) { toast.error('Please enter a campaign title'); return false; }
+        if (!category) { toast.error('Please select a category'); return false; }
+        if (desc.length < 20) { toast.error('Description must be at least 20 characters'); return false; }
+        return true;
+      }
+      if (step === 2) {
+        const goal = parseFloat(document.getElementById('goal').value);
+        const duration = parseInt(document.getElementById('duration').value);
+
+        if (!goal || goal < 0.01 || goal > 100000) { toast.error('Goal must be between 0.01 and 100,000 MNT'); return false; }
+        if (!duration || duration < 1 || duration > 365) { toast.error('Duration must be between 1 and 365 days'); return false; }
+        return true;
+      }
+      return true;
+    }
+
+    // Character count
+    document.getElementById('description').addEventListener('input', (e) => {
+      document.getElementById('charCount').textContent = e.target.value.length;
+    });
+
+    // Image preview
+    document.getElementById('imageUrl').addEventListener('input', (e) => {
+      const img = document.getElementById('imgPreview');
+      if (e.target.value) {
+        img.src = e.target.value;
+        img.style.display = 'block';
+        img.onerror = () => { img.style.display = 'none'; };
+      } else {
+        img.style.display = 'none';
+      }
+    });
+
+    // Duration preview
+    document.getElementById('duration').addEventListener('input', (e) => {
+      const days = parseInt(e.target.value) || 0;
+      const deadline = new Date(Date.now() + days * 86400000);
+      document.getElementById('deadlinePreview').textContent = `Ends on: ${deadline.toLocaleDateString()}`;
+    });
+
+    // Update preview card
+    function updatePreview() {
+      const title = document.getElementById('campaignTitle').value;
+      const category = document.getElementById('category').value;
+      const desc = document.getElementById('description').value;
+      const imageUrl = document.getElementById('imageUrl').value;
+      const goal = parseFloat(document.getElementById('goal').value) || 0;
+      const duration = parseInt(document.getElementById('duration').value) || 0;
+
+      document.getElementById('previewTitle').textContent = title || 'Campaign Title';
+      document.getElementById('previewCategory').textContent = `${utils.categoryIcon(category)} ${category || 'Category'}`;
+      document.getElementById('previewDesc').textContent = desc || 'Campaign description...';
+      document.getElementById('previewGoal').textContent = `${goal} MNT Goal`;
+      document.getElementById('previewDuration').textContent = `${duration} days`;
+
+      const previewImage = document.getElementById('previewImage');
+      if (imageUrl) {
+        previewImage.innerHTML = `<img src="${imageUrl}" style="width:100%;height:200px;object-fit:cover" onerror="this.parentElement.innerHTML='<div style=\\'height:200px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;color:var(--text-muted)\\'>No Image</div>'" />`;
+      } else {
+        previewImage.innerHTML = '<div style="height:200px;background:var(--bg-secondary);display:flex;align-items:center;justify-content:center;color:var(--text-muted)">Default Image</div>';
+      }
+
+      // Fee calculation
+      const fee = goal * 0.025;
+      const receive = goal - fee;
+      document.getElementById('feePreview').textContent = fee.toFixed(4) + ' MNT';
+      document.getElementById('receivePreview').textContent = receive.toFixed(4) + ' MNT';
+    }
+
+    // Form submission
+    document.getElementById('createCampaignForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      if (!W3.isConnected) {
+        toast.error('Please connect your wallet first');
+        return;
+      }
+
+      if (!W3.fundContract) {
+        toast.error('Contract not available. Please check your network connection.');
+        return;
+      }
+
+      const title = document.getElementById('campaignTitle').value.trim();
+      const description = document.getElementById('description').value.trim();
+      const category = document.getElementById('category').value;
+      const imageUrl = document.getElementById('imageUrl').value.trim();
+      const ipfsHash = document.getElementById('ipfsHash').value.trim();
+      const goal = document.getElementById('goal').value;
+      const duration = document.getElementById('duration').value;
+
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width:16px;height:16px"></span> Deploying...';
+
+      try {
+        const goalWei = ethers.parseEther(goal);
+
+        const tx = await W3.fundContract.createCampaign(
+          title,
+          description,
+          category,
+          imageUrl,
+          ipfsHash,
+          goalWei,
+          duration
+        );
+
+        toast.info('Transaction submitted, waiting for confirmation...');
+
+        const receipt = await tx.wait();
+
+        // Get campaign ID from event
+        let campaignId = null;
+        for (const log of receipt.logs) {
+          try {
+            const parsed = W3.fundContract.interface.parseLog(log);
+            if (parsed && parsed.name === 'CampaignCreated') {
+              campaignId = parsed.args.id.toString();
+              break;
+            }
+          } catch {}
+        }
+
+        toast.success('Campaign created successfully!');
+
+        // Redirect to campaign page
+        setTimeout(() => {
+          if (campaignId) {
+            window.location.href = `campaign-detail.html?id=${campaignId}`;
+          } else {
+            window.location.href = 'dashboard.html';
+          }
+        }, 1500);
+
+      } catch (err) {
+        console.error('Create campaign error:', err);
+        if (err.code === 'ACTION_REJECTED') {
+          toast.warning('Transaction rejected by user');
+        } else {
+          toast.error(err.reason || err.message || 'Failed to create campaign');
+        }
+        btn.disabled = false;
+        btn.textContent = '🚀 Deploy Campaign On-Chain';
+      }
+    });
+  </script>
 </body>
 </html>

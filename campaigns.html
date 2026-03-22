@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Browse Campaigns — CharityFund</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💚</text></svg>" />
+  <title>Browse Campaigns — TrustChain</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔗</text></svg>" />
   <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body>
@@ -12,23 +12,21 @@
   <!-- NAVBAR -->
   <nav class="navbar">
     <a href="index.html" class="navbar-brand">
-      <div class="brand-icon">💚</div>
-      <span class="brand-text">CharityFund</span>
+      <div class="brand-icon">🔗</div>
+      <span class="brand-text">TrustChain</span>
     </a>
     <div class="navbar-links">
-      <a href="index.html"            class="nav-link">Home</a>
-      <a href="campaigns.html"        class="nav-link active">Campaigns</a>
-      <a href="create-campaign.html"  class="nav-link">Start Campaign</a>
-      <a href="dashboard.html"        class="nav-link">Dashboard</a>
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="campaigns.html" class="nav-link active">Campaigns</a>
+      <a href="create-campaign.html" class="nav-link">Start Campaign</a>
+      <a href="dashboard.html" class="nav-link">Dashboard</a>
+      <a href="leaderboard.html" class="nav-link">Leaderboard</a>
     </div>
     <div class="navbar-right">
-      <div class="wallet-info">
-        <span class="wallet-dot disconnected"></span>
-        <span data-wallet-addr>Not connected</span>
-      </div>
+      <div data-network-indicator class="hidden"></div>
       <button class="btn btn-primary btn-sm" data-connect-btn>Connect Wallet</button>
     </div>
-    <button class="hamburger"><span></span><span></span><span></span></button>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
   </nav>
 
   <!-- PAGE HEADER -->
@@ -46,36 +44,90 @@
   <main style="padding-bottom:5rem">
     <div class="container">
 
-      <!-- FILTER BAR -->
-      <div class="filter-bar">
-        <!-- Search -->
-        <div class="search-input-wrap">
+      <!-- SEARCH SECTION -->
+      <div class="search-container" style="margin-bottom:2rem">
+        <div class="search-input-wrapper">
           <span class="search-icon">🔍</span>
           <input
             type="text"
             id="campaignSearch"
-            class="form-control"
-            placeholder="Search campaigns…"
+            class="search-input"
+            placeholder="Search campaigns by title, category, or description..."
+            autocomplete="off"
           />
+          <button class="search-clear" id="searchClear">&times;</button>
         </div>
 
+        <!-- Search Dropdown -->
+        <div class="search-dropdown" id="searchDropdown">
+          <div class="search-section" id="searchSuggestions">
+            <div class="search-section-title">Suggestions</div>
+          </div>
+          <div class="search-section" id="searchRecent">
+            <div class="search-section-title">Recent Searches</div>
+          </div>
+          <div class="search-section" id="searchPopular">
+            <div class="search-section-title">Popular Categories</div>
+            <div style="display:flex;flex-wrap:wrap;gap:0.5rem;padding:0.5rem 1rem">
+              <span class="search-tag" data-category="Healthcare">🏥 Healthcare</span>
+              <span class="search-tag" data-category="Education">📚 Education</span>
+              <span class="search-tag" data-category="Environment">🌿 Environment</span>
+              <span class="search-tag" data-category="Disaster Relief">🆘 Disaster Relief</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FILTER BAR -->
+      <div class="filter-bar" style="display:flex;gap:1rem;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:1.5rem">
         <!-- Status Filter -->
-        <div class="filter-tabs">
-          <button class="filter-tab active" data-status="all">All</button>
-          <button class="filter-tab" data-status="active">Active</button>
-          <button class="filter-tab" data-status="completed">Goal Met</button>
-          <button class="filter-tab" data-status="ended">Ended</button>
+        <div class="filter-chips" style="margin-bottom:0">
+          <button class="filter-chip active" data-status="all">All</button>
+          <button class="filter-chip" data-status="active">🟢 Active</button>
+          <button class="filter-chip" data-status="completed">✅ Goal Met</button>
+          <button class="filter-chip" data-status="ended">⏱ Ended</button>
+        </div>
+
+        <!-- Sort Dropdown -->
+        <div class="sort-dropdown">
+          <button class="sort-btn" id="sortBtn">
+            <span>Sort by:</span>
+            <span id="sortLabel">Newest</span>
+            <span>▼</span>
+          </button>
+          <div class="sort-menu" id="sortMenu">
+            <button class="sort-option active" data-sort="newest">Newest First</button>
+            <button class="sort-option" data-sort="oldest">Oldest First</button>
+            <button class="sort-option" data-sort="raised-high">Most Raised</button>
+            <button class="sort-option" data-sort="raised-low">Least Raised</button>
+            <button class="sort-option" data-sort="goal-high">Highest Goal</button>
+            <button class="sort-option" data-sort="ending">Ending Soon</button>
+            <button class="sort-option" data-sort="popular">Most Popular</button>
+          </div>
         </div>
       </div>
 
       <!-- CATEGORY TABS -->
-      <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:2rem" id="catTabs">
+      <div class="filter-chips" id="catTabs" style="margin-bottom:2rem">
         <!-- Injected by script -->
       </div>
 
       <!-- CAMPAIGNS GRID -->
       <div class="grid-3" id="campaignsGrid">
         <div class="page-loader" style="grid-column:1/-1"><div class="spinner"></div></div>
+      </div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-state-icon">🔍</div>
+        <h3 class="empty-state-title">No campaigns found</h3>
+        <p class="empty-state-desc">Try adjusting your search or filters to find what you're looking for.</p>
+        <button class="btn btn-secondary" onclick="clearFilters()">Clear Filters</button>
+      </div>
+
+      <!-- LOAD MORE -->
+      <div style="text-align:center;margin-top:2rem" id="loadMoreSection" class="hidden">
+        <button class="btn btn-outline btn-lg" id="loadMoreBtn">Load More Campaigns</button>
       </div>
 
     </div>
@@ -85,40 +137,377 @@
   <footer class="footer">
     <div class="container">
       <div class="footer-bottom" style="justify-content:center">
-        <span>© 2026 CharityFund — Decentralized Charity Platform on Ethereum</span>
+        <span>© 2026 TrustChain — Decentralized Charity Platform on Mantle Network</span>
       </div>
     </div>
   </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
   <script src="js/config.js"></script>
   <script src="js/web3.js"></script>
-  <script src="js/campaigns.js"></script>
 
   <script>
-    // Inject category tabs
-    document.addEventListener('DOMContentLoaded', () => {
-      const catTabs = document.getElementById('catTabs');
-      if (!catTabs) return;
+    // State
+    let allCampaigns = [];
+    let filteredCampaigns = [];
+    let displayedCount = 0;
+    const pageSize = 9;
+    let currentStatus = 'all';
+    let currentCategory = 'all';
+    let currentSort = 'newest';
+    let searchQuery = '';
+    let recentSearches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
 
-      catTabs.innerHTML = window.CATEGORIES.map((cat, i) => `
-        <button
-          class="filter-tab ${cat.value === 'all' ? 'active' : ''}"
-          data-cat="${cat.value}"
-        >
+    // Elements
+    const searchInput = document.getElementById('campaignSearch');
+    const searchDropdown = document.getElementById('searchDropdown');
+    const searchClear = document.getElementById('searchClear');
+    const campaignsGrid = document.getElementById('campaignsGrid');
+    const emptyState = document.getElementById('emptyState');
+    const campaignCount = document.getElementById('campaignCount');
+    const loadMoreSection = document.getElementById('loadMoreSection');
+    const sortBtn = document.getElementById('sortBtn');
+    const sortMenu = document.getElementById('sortMenu');
+    const sortLabel = document.getElementById('sortLabel');
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderCategoryTabs();
+      setupEventListeners();
+      await loadAllCampaigns();
+
+      // Check URL params
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('cat')) {
+        currentCategory = params.get('cat');
+        updateCategoryUI();
+      }
+      if (params.get('q')) {
+        searchQuery = params.get('q');
+        searchInput.value = searchQuery;
+      }
+
+      applyFilters();
+    });
+
+    // Load campaigns
+    async function loadAllCampaigns() {
+      allCampaigns = await loadCampaigns();
+      applyFilters();
+    }
+
+    // Render category tabs
+    function renderCategoryTabs() {
+      const catTabs = document.getElementById('catTabs');
+      catTabs.innerHTML = window.CATEGORIES.map(cat => `
+        <button class="filter-chip ${cat.value === currentCategory ? 'active' : ''}" data-cat="${cat.value}">
           ${cat.icon} ${cat.label}
         </button>
       `).join('');
 
-      // Pre-select category from URL query
-      const params = new URLSearchParams(window.location.search);
-      const urlCat = params.get('cat');
-      if (urlCat) {
-        catTabs.querySelectorAll('[data-cat]').forEach(btn => {
-          btn.classList.toggle('active', btn.dataset.cat === urlCat);
+      catTabs.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-cat]');
+        if (!btn) return;
+        currentCategory = btn.dataset.cat;
+        updateCategoryUI();
+        applyFilters();
+      });
+    }
+
+    function updateCategoryUI() {
+      document.querySelectorAll('#catTabs [data-cat]').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === currentCategory);
+      });
+    }
+
+    // Setup event listeners
+    function setupEventListeners() {
+      // Search
+      searchInput.addEventListener('input', debounce((e) => {
+        searchQuery = e.target.value.trim();
+        searchClear.classList.toggle('visible', searchQuery.length > 0);
+        showSearchSuggestions();
+        applyFilters();
+      }, 300));
+
+      searchInput.addEventListener('focus', () => {
+        if (searchQuery.length > 0 || recentSearches.length > 0) {
+          searchDropdown.classList.add('open');
+        }
+      });
+
+      document.addEventListener('click', (e) => {
+        if (!searchInput.contains(e.target) && !searchDropdown.contains(e.target)) {
+          searchDropdown.classList.remove('open');
+        }
+      });
+
+      searchClear.addEventListener('click', () => {
+        searchInput.value = '';
+        searchQuery = '';
+        searchClear.classList.remove('visible');
+        applyFilters();
+      });
+
+      // Status filters
+      document.querySelectorAll('[data-status]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentStatus = btn.dataset.status;
+          document.querySelectorAll('[data-status]').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyFilters();
         });
+      });
+
+      // Sort
+      sortBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        sortMenu.classList.toggle('open');
+      });
+
+      document.addEventListener('click', () => {
+        sortMenu.classList.remove('open');
+      });
+
+      document.querySelectorAll('.sort-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+          currentSort = btn.dataset.sort;
+          sortLabel.textContent = btn.textContent;
+          document.querySelectorAll('.sort-option').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          applyFilters();
+        });
+      });
+
+      // Category tags in search
+      document.querySelectorAll('.search-tag[data-category]').forEach(tag => {
+        tag.addEventListener('click', () => {
+          currentCategory = tag.dataset.category;
+          updateCategoryUI();
+          searchDropdown.classList.remove('open');
+          applyFilters();
+        });
+      });
+
+      // Load more
+      document.getElementById('loadMoreBtn')?.addEventListener('click', loadMore);
+    }
+
+    // Show search suggestions
+    function showSearchSuggestions() {
+      if (searchQuery.length < 2) {
+        renderRecentSearches();
+        searchDropdown.classList.toggle('open', recentSearches.length > 0);
+        return;
       }
-    });
+
+      const matches = allCampaigns.filter(c =>
+        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.description.toLowerCase().includes(searchQuery.toLowerCase())
+      ).slice(0, 5);
+
+      const suggestionsDiv = document.getElementById('searchSuggestions');
+      if (matches.length > 0) {
+        suggestionsDiv.innerHTML = `
+          <div class="search-section-title">Matching Campaigns</div>
+          ${matches.map(c => `
+            <div class="search-item" onclick="window.location='campaign-detail.html?id=${c.id}'">
+              <img src="${c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=100'}" class="search-item-icon" alt="" />
+              <div class="search-item-content">
+                <div class="search-item-title">${highlightMatch(c.title, searchQuery)}</div>
+                <div class="search-item-meta">
+                  <span>${utils.categoryIcon(c.category)} ${c.category}</span>
+                  <span>${utils.formatEth(c.raised)} MNT raised</span>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        `;
+        searchDropdown.classList.add('open');
+      } else {
+        suggestionsDiv.innerHTML = `
+          <div class="search-section-title">No matches found</div>
+          <div style="padding:0.75rem 1.25rem;color:var(--text-secondary);font-size:0.875rem">
+            Try different keywords or browse categories below
+          </div>
+        `;
+        searchDropdown.classList.add('open');
+      }
+    }
+
+    function highlightMatch(text, query) {
+      const regex = new RegExp(`(${query})`, 'gi');
+      return text.replace(regex, '<mark style="background:var(--teal-glow);color:var(--teal)">$1</mark>');
+    }
+
+    function renderRecentSearches() {
+      const recentDiv = document.getElementById('searchRecent');
+      if (recentSearches.length === 0) {
+        recentDiv.style.display = 'none';
+        return;
+      }
+      recentDiv.style.display = 'block';
+      recentDiv.innerHTML = `
+        <div class="search-section-title">Recent Searches</div>
+        ${recentSearches.slice(0, 5).map(q => `
+          <div class="search-item" onclick="searchInput.value='${q}';searchQuery='${q}';applyFilters()">
+            <span style="color:var(--text-muted)">🕐</span>
+            <div class="search-item-content">
+              <div class="search-item-title">${q}</div>
+            </div>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function addRecentSearch(query) {
+      if (!query || query.length < 2) return;
+      recentSearches = [query, ...recentSearches.filter(q => q !== query)].slice(0, 10);
+      localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const now = Math.floor(Date.now() / 1000);
+
+      filteredCampaigns = allCampaigns.filter(c => {
+        // Status filter
+        if (currentStatus === 'active' && (!c.active || c.deadline < now)) return false;
+        if (currentStatus === 'completed' && utils.progress(c.raised, c.goal) < 100) return false;
+        if (currentStatus === 'ended' && c.deadline > now) return false;
+
+        // Category filter
+        if (currentCategory !== 'all' && c.category !== currentCategory) return false;
+
+        // Search filter
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          if (!c.title.toLowerCase().includes(q) &&
+              !c.category.toLowerCase().includes(q) &&
+              !c.description.toLowerCase().includes(q)) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      // Sort
+      filteredCampaigns.sort((a, b) => {
+        switch (currentSort) {
+          case 'newest': return (b.createdAt || b.id) - (a.createdAt || a.id);
+          case 'oldest': return (a.createdAt || a.id) - (b.createdAt || b.id);
+          case 'raised-high': return BigInt(b.raised) > BigInt(a.raised) ? 1 : -1;
+          case 'raised-low': return BigInt(a.raised) > BigInt(b.raised) ? 1 : -1;
+          case 'goal-high': return BigInt(b.goal) > BigInt(a.goal) ? 1 : -1;
+          case 'ending': return a.deadline - b.deadline;
+          case 'popular': return (b.donorCount + b.voteCount) - (a.donorCount + a.voteCount);
+          default: return 0;
+        }
+      });
+
+      displayedCount = 0;
+      renderCampaigns();
+
+      if (searchQuery) addRecentSearch(searchQuery);
+    }
+
+    // Render campaigns
+    function renderCampaigns() {
+      campaignCount.textContent = filteredCampaigns.length;
+
+      if (filteredCampaigns.length === 0) {
+        campaignsGrid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        loadMoreSection.classList.add('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      const toShow = filteredCampaigns.slice(displayedCount, displayedCount + pageSize);
+      const html = toShow.map(c => renderCampaignCard(c)).join('');
+
+      if (displayedCount === 0) {
+        campaignsGrid.innerHTML = html;
+      } else {
+        campaignsGrid.insertAdjacentHTML('beforeend', html);
+      }
+
+      displayedCount += toShow.length;
+
+      loadMoreSection.classList.toggle('hidden', displayedCount >= filteredCampaigns.length);
+    }
+
+    function renderCampaignCard(c) {
+      const pct = utils.progress(c.raised, c.goal);
+      const raised = utils.formatEth(c.raised);
+      const goal = utils.formatEth(c.goal);
+      const imgSrc = c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format';
+
+      return `
+        <article class="card campaign-card fade-up"
+                 onclick="window.location='campaign-detail.html?id=${c.id}'"
+                 style="cursor:pointer">
+          <div class="campaign-card-img-wrapper">
+            <img src="${imgSrc}" alt="${c.title}" class="campaign-card-img"
+                 loading="lazy"
+                 onerror="this.src='https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format'" />
+            <span class="badge badge-purple" style="position:absolute;top:12px;left:12px">
+              ${utils.categoryIcon(c.category)} ${c.category}
+            </span>
+          </div>
+          <div class="campaign-card-body">
+            <h3 class="campaign-card-title">${c.title}</h3>
+            <p class="campaign-card-desc">${c.description}</p>
+            <div class="progress-wrap">
+              <div class="progress-info">
+                <span class="progress-raised">${raised} MNT</span>
+                <span class="progress-goal">of ${goal} MNT</span>
+              </div>
+              <div class="progress-bar-outer">
+                <div class="progress-bar-inner" style="width:${pct}%"></div>
+              </div>
+            </div>
+            <div class="campaign-card-meta">
+              ${utils.statusBadge(c)}
+              <span>⏱ ${utils.timeLeft(c.deadline)}</span>
+              <span>👥 ${c.donorCount || 0}</span>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function loadMore() {
+      renderCampaigns();
+    }
+
+    function clearFilters() {
+      currentStatus = 'all';
+      currentCategory = 'all';
+      searchQuery = '';
+      searchInput.value = '';
+      searchClear.classList.remove('visible');
+
+      document.querySelectorAll('[data-status]').forEach(b => {
+        b.classList.toggle('active', b.dataset.status === 'all');
+      });
+      updateCategoryUI();
+      applyFilters();
+    }
+
+    function debounce(fn, delay) {
+      let timer;
+      return function(...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+
+    // Reload on wallet connect
+    window.addEventListener('walletConnected', loadAllCampaigns);
   </script>
 </body>
 </html>
