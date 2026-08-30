@@ -5,14 +5,14 @@ import Link from 'next/link';
 import { usePlatformStats, useAllCampaigns } from '../hooks/useCharityFund';
 import { ParticleCanvas } from '../components/ParticleCanvas';
 import { SafeImage } from '../components/SafeImage';
-import { formatMntLabel, formatMnt, calcProgress, formatTimeLeft, getCategoryIcon } from '../utils/formatters';
+import { formatMntLabel, formatMnt, calcProgress, formatTimeLeft, getCategoryIcon, getCampaignStatus, getCampaignStatusBadge } from '../utils/formatters';
 import { CATEGORIES } from '../config/contracts';
 
 export default function HomePage() {
   const { campaigns: totalCampaigns, raised: totalRaised, donors: totalDonors } = usePlatformStats();
   const { campaigns } = useAllCampaigns();
 
-  const featuredCampaigns = campaigns.slice(0, 3);
+  const featuredCampaigns = campaigns.filter((c) => getCampaignStatus(c) !== 'cancelled').slice(0, 3);
   const categoriesList = CATEGORIES.filter((c) => c.value !== 'all');
 
   return (
@@ -168,7 +168,10 @@ export default function HomePage() {
                         </div>
                       </div>
                       <div className="campaign-card-meta">
-                        <span className="badge badge-teal">{pct >= 100 ? 'Goal Met ✓' : 'Active'}</span>
+                        {(() => {
+                          const statusBadge = getCampaignStatusBadge(c);
+                          return <span className={`badge ${statusBadge.badgeCls}`}>{statusBadge.label}</span>;
+                        })()}
                         <span>⏱ {formatTimeLeft(c.deadline)}</span>
                         <span>👥 {c.donorCount || 0}</span>
                       </div>

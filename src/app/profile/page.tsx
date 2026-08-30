@@ -8,6 +8,7 @@ import { useDonorStats, useAllCampaigns } from '../../hooks/useCharityFund';
 import { useUserNFTTokens } from '../../hooks/useCharityNFT';
 import { formatMnt, shortAddr, avatarStyle, initials, getDonorBadge, explorerAddress, calcProgress, formatTimeLeft } from '../../utils/formatters';
 import { useToast } from '../../components/Toast';
+import { NFTReceiptCard } from '../../components/NFTReceiptCard';
 
 function ProfileContent() {
   const searchParams = useSearchParams();
@@ -210,36 +211,20 @@ function ProfileContent() {
 
         {/* Tab 2: NFTs */}
         {activeTab === 'nfts' && (
-          <div className="grid-3">
-            {[
-              { id: 1, tier: 'Diamond', amount: '1.0 MNT', date: 'Aug 2026' },
-              { id: 2, tier: 'Gold', amount: '0.25 MNT', date: 'Aug 2026' },
-            ].map((nft) => (
-              <div key={nft.id} className="card" style={{ padding: '1.5rem', textAlign: 'center' }}>
-                <div
-                  style={{
-                    background: 'linear-gradient(135deg, #0a0a1a, #1a0a2e)',
-                    borderRadius: '14px',
-                    padding: '2rem 1rem',
-                    marginBottom: '1rem',
-                    border: '1px solid rgba(0,212,170,0.3)',
-                  }}
-                >
-                  <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>
-                    {nft.tier === 'Diamond' ? '💎' : '🥇'}
-                  </div>
-                  <div style={{ fontWeight: 800, fontSize: '1.1rem', color: 'var(--teal)' }}>
-                    {nft.amount}
-                  </div>
-                  <span className="badge badge-teal" style={{ marginTop: '0.75rem' }}>
-                    {nft.tier} Receipt #{nft.id}
-                  </span>
-                </div>
-                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Mantle Sepolia On-Chain NFT
-                </div>
+          <div>
+            {tokenIds.length === 0 ? (
+              <div className="empty-state" style={{ padding: '3rem' }}>
+                <div className="empty-state-icon">🎨</div>
+                <h3>No NFT receipts</h3>
+                <p style={{ color: 'var(--text-secondary)' }}>This user has not received any on-chain NFT donation receipts yet.</p>
               </div>
-            ))}
+            ) : (
+              <div className="grid-3">
+                {tokenIds.map((tokenId) => (
+                  <NFTReceiptCard key={tokenId} tokenId={tokenId} />
+                ))}
+              </div>
+            )}
           </div>
         )}
       </div>

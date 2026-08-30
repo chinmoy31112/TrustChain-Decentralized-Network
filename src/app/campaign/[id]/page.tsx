@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { parseEther } from 'viem';
 import { SafeImage } from '../../../components/SafeImage';
-import { useCampaign, useFundContractAddress } from '../../../hooks/useCharityFund';
+import { useCampaign, useFundContractAddress, useCampaignDonations } from '../../../hooks/useCharityFund';
 import { CHARITY_FUND_ABI, NFT_TIERS } from '../../../config/contracts';
 import { formatMnt, calcProgress, formatTimeLeft, getCategoryIcon, shortAddr, getDonorBadge, avatarStyle, initials, explorerAddress, getCampaignStatusBadge } from '../../../utils/formatters';
 import { useToast } from '../../../components/Toast';
@@ -21,6 +21,7 @@ export default function CampaignDetailPage() {
   const chainId = useChainId();
   const { toast } = useToast();
   const fundAddress = useFundContractAddress();
+  const { donations: campaignDonations } = useCampaignDonations(id);
 
   const [donationAmount, setDonationAmount] = useState<string>('0.1');
   const [activeTab, setActiveTab] = useState<'about' | 'donors' | 'governance'>('about');
@@ -105,9 +106,11 @@ export default function CampaignDetailPage() {
   const goalStr = formatMnt(c.goal);
   const catIcon = getCategoryIcon(c.category);
   const now = Math.floor(Date.now() / 1000);
-  const isEnded = Number(c.deadline) < now || !c.active;
+  const status = getCampaignStatus(c);
+  const isCancelled = status === 'cancelled';
+  const isEnded = Number(c.deadline) < now || !c.active || isCancelled;
   const isOwner = Boolean(address && address.toLowerCase() === c.creator.toLowerCase());
-  const canWithdraw = isOwner && !c.withdrawn && (pct >= 100 || isEnded);
+  const canWithdraw = isOwner && !c.withdrawn && !isCancelled && (pct >= 100 || Number(c.deadline) < now);
 
   const parsedAmount = parseFloat(donationAmount || '0');
   const previewBadge = getDonorBadge(parseEther(donationAmount && !isNaN(parsedAmount) && parsedAmount > 0 ? donationAmount : '0'));
@@ -358,55 +361,64 @@ export default function CampaignDetailPage() {
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
                     All donors receive verifiable on-chain SVG NFT receipts recorded on Mantle Sepolia.
                   </p>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {[
-                      { addr: '0xAbCd1234567890abcdef1234567890AbCd123456', amount: '2.5', tier: 'Diamond' },
-                      { addr: '0xBcDe2345678901bcdef2345678901BcDe234567', amount: '0.5', tier: 'Gold' },
-                      { addr: '0xCdEf3456789012cdef3456789012CdEf345678', amount: '0.05', tier: 'Silver' },
-                    ].map((d, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                          padding: '1rem',
-                          borderRadius: '12px',
-                          background: 'rgba(255,255,255,0.03)',
-                          border: '1px solid var(--border)',
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  {campaignDonations.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+                      <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>💚</div>
+                      <h4 style={{ marginBottom: '0.5rem' }}>No donations yet</h4>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                        Be the first to support this campaign and receive an on-chain NFT receipt!
+                      </p>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                      {campaignDonations.map((d, idx) => {
+                        const donorBadge = getDonorBadge(d.amount);
+                        return (
                           <div
+                            key={`${d.donor}-${d.timestamp}-${idx}`}
                             style={{
-                              ...avatarStyle(d.addr),
-                              width: '36px',
-                              height: '36px',
-                              borderRadius: '50%',
                               display: 'flex',
                               alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '0.8rem',
-                              fontWeight: 700,
+                              justifyContent: 'space-between',
+                              padding: '1rem',
+                              borderRadius: '12px',
+                              background: 'rgba(255,255,255,0.03)',
+                              border: '1px solid var(--border)',
                             }}
                           >
-                            {initials(d.addr)}
-                          </div>
-                          <div>
-                            <Link href={`/profile?address=${d.addr}`} style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
-                              {shortAddr(d.addr)}
-                            </Link>
-                            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                              {d.tier} Tier NFT Receipt
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <div
+                                style={{
+                                  ...avatarStyle(d.donor),
+                                  width: '36px',
+                                  height: '36px',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '0.8rem',
+                                  fontWeight: 700,
+                                }}
+                              >
+                                {initials(d.donor)}
+                              </div>
+                              <div>
+                                <Link href={`/profile?address=${d.donor}`} style={{ fontFamily: 'monospace', fontSize: '0.9rem' }}>
+                                  {shortAddr(d.donor)}
+                                </Link>
+                                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                  {donorBadge.icon} {donorBadge.label} Tier · {new Date(d.timestamp * 1000).toLocaleDateString()}
+                                </div>
+                              </div>
+                            </div>
+                            <div style={{ fontWeight: 700, color: 'var(--teal)' }}>
+                              +{formatMnt(d.amount)} MNT
                             </div>
                           </div>
-                        </div>
-                        <div style={{ fontWeight: 700, color: 'var(--teal)' }}>
-                          +{d.amount} MNT
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             )}
@@ -471,29 +483,37 @@ export default function CampaignDetailPage() {
             {isOwner && (
               <div className="card" style={{ padding: '1.5rem', marginTop: '2rem', borderColor: 'rgba(0,212,170,0.3)' }}>
                 <h4 style={{ color: 'var(--teal)', marginBottom: '0.75rem' }}>⚡ Creator Management Controls</h4>
-                <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
-                  You are the creator of this campaign. You can withdraw funds once the goal is reached or deadline has passed.
-                </p>
-                <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-                  <button
-                    className="btn btn-primary"
-                    disabled={!canWithdraw || isWithdrawing || isWaitingWithdraw}
-                    onClick={handleWithdraw}
-                  >
-                    {isWithdrawing || isWaitingWithdraw ? 'Withdrawing...' : '💰 Withdraw Funds'}
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    disabled={!c.active || isCancelling || isWaitingCancel}
-                    onClick={handleCancel}
-                  >
-                    {isCancelling || isWaitingCancel ? 'Cancelling...' : '🔒 Cancel & Refund Donors'}
-                  </button>
-                </div>
-                {c.withdrawn && (
-                  <p style={{ color: 'var(--teal)', fontSize: '0.85rem', marginTop: '0.75rem' }}>
-                    ✓ Funds have been withdrawn
-                  </p>
+                {isCancelled ? (
+                  <div style={{ padding: '0.85rem 1.25rem', background: 'rgba(255, 71, 87, 0.12)', border: '1px solid #ff4757', borderRadius: '10px', color: '#ff4757', fontWeight: 600, fontSize: '0.9rem' }}>
+                    ✕ Campaign Cancelled — All donor funds have been automatically refunded.
+                  </div>
+                ) : (
+                  <>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+                      You are the creator of this campaign. You can withdraw funds once the goal is reached or deadline has passed.
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                      <button
+                        className="btn btn-primary"
+                        disabled={!canWithdraw || isWithdrawing || isWaitingWithdraw}
+                        onClick={handleWithdraw}
+                      >
+                        {isWithdrawing || isWaitingWithdraw ? 'Withdrawing...' : '💰 Withdraw Funds'}
+                      </button>
+                      <button
+                        className="btn btn-danger"
+                        disabled={!c.active || isCancelling || isWaitingCancel}
+                        onClick={handleCancel}
+                      >
+                        {isCancelling || isWaitingCancel ? 'Cancelling...' : '🔒 Cancel & Refund Donors'}
+                      </button>
+                    </div>
+                    {c.withdrawn && (
+                      <p style={{ color: 'var(--teal)', fontSize: '0.85rem', marginTop: '0.75rem' }}>
+                        ✓ Funds have been withdrawn
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -504,7 +524,11 @@ export default function CampaignDetailPage() {
             <div className="card donate-card">
               <h3 style={{ marginBottom: '1rem' }}>Make a Donation</h3>
 
-              {isEnded || c.withdrawn ? (
+              {isCancelled ? (
+                <div className="badge badge-danger" style={{ width: '100%', padding: '0.75rem', marginBottom: '1.25rem', textAlign: 'center' }}>
+                  This campaign was cancelled and refunded
+                </div>
+              ) : isEnded || c.withdrawn ? (
                 <div className="badge badge-gray" style={{ width: '100%', padding: '0.75rem', marginBottom: '1.25rem', textAlign: 'center' }}>
                   This campaign is no longer accepting donations
                 </div>

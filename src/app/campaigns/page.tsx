@@ -30,8 +30,13 @@ function CampaignsContent() {
       }
 
       // Status filter
-      if (activeStatus !== 'all') {
-        const cStatus = getCampaignStatus(c);
+      const cStatus = getCampaignStatus(c);
+      if (activeStatus === 'cancelled') {
+        if (cStatus !== 'cancelled') return false;
+      } else if (activeStatus === 'all') {
+        // Exclude cancelled campaigns from 'All Status' view so they only show in 'Cancelled' tab
+        if (cStatus === 'cancelled') return false;
+      } else {
         if (cStatus !== activeStatus) return false;
       }
 

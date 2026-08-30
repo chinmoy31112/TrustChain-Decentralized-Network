@@ -190,3 +190,67 @@ export function useLeaderboard(limit = 10) {
 
   return { leaderboard, isLoading, refetch };
 }
+
+export interface DonationRecord {
+  campaignId: number;
+  donor: `0x${string}`;
+  amount: bigint;
+  timestamp: number;
+  nftTokenId: number;
+}
+
+export function useCampaignDonations(campaignId: number) {
+  const fundAddress = useFundContractAddress();
+
+  const { data, isLoading, refetch } = useReadContract({
+    address: fundAddress,
+    abi: CHARITY_FUND_ABI,
+    functionName: 'getCampaignDonations',
+    args: [BigInt(campaignId)],
+    query: {
+      enabled: Boolean(fundAddress && campaignId > 0),
+      retry: 1,
+      retryDelay: 2000,
+    },
+  });
+
+  const donations: DonationRecord[] = Array.isArray(data)
+    ? data.map((d: any) => ({
+        campaignId: Number(d.campaignId),
+        donor: d.donor as `0x${string}`,
+        amount: BigInt(d.amount?.toString() || '0'),
+        timestamp: Number(d.timestamp),
+        nftTokenId: Number(d.nftTokenId),
+      }))
+    : [];
+
+  return { donations, isLoading, refetch };
+}
+
+export function useUserDonations(userAddress?: `0x${string}`) {
+  const fundAddress = useFundContractAddress();
+
+  const { data, isLoading, refetch } = useReadContract({
+    address: fundAddress,
+    abi: CHARITY_FUND_ABI,
+    functionName: 'getUserDonations',
+    args: userAddress ? [userAddress] : undefined,
+    query: {
+      enabled: Boolean(fundAddress && userAddress),
+      retry: 1,
+      retryDelay: 2000,
+    },
+  });
+
+  const donations: DonationRecord[] = Array.isArray(data)
+    ? data.map((d: any) => ({
+        campaignId: Number(d.campaignId),
+        donor: d.donor as `0x${string}`,
+        amount: BigInt(d.amount?.toString() || '0'),
+        timestamp: Number(d.timestamp),
+        nftTokenId: Number(d.nftTokenId),
+      }))
+    : [];
+
+  return { donations, isLoading, refetch };
+}

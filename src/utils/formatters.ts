@@ -89,7 +89,7 @@ export function getTierForAmount(amountMnt: number) {
   return NFT_TIERS.bronze;
 }
 
-export function avatarStyle(addr?: string | null): React.CSSProperties {
+export function avatarStyle(addr?: string | null): Record<string, string> {
   if (!addr) return {};
   const hue = parseInt(addr.slice(-4), 16) % 360;
   return {
@@ -127,14 +127,18 @@ export function getCampaignStatus(c: {
   raised: bigint | string | number;
   goal: bigint | string | number;
 }): CampaignStatusType {
-  if (c.status === 3) {
+  // Solidity Enum: 0 = Active, 1 = Completed, 2 = Cancelled, 3 = Withdrawn
+  if (c.status === 2) {
     return 'cancelled';
   }
-  if (calcProgress(c.raised, c.goal) >= 100) {
+  if (c.status === 1 || calcProgress(c.raised, c.goal) >= 100) {
     return 'completed';
   }
+  if (c.status === 3 || c.withdrawn) {
+    return 'ended';
+  }
   const now = Math.floor(Date.now() / 1000);
-  if (Number(c.deadline) < now || (c.active === false && !c.withdrawn) || c.status === 1 || c.status === 2) {
+  if (Number(c.deadline) < now || c.active === false) {
     return 'ended';
   }
   return 'active';
