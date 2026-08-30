@@ -179,7 +179,7 @@ export default function DashboardPage() {
                               <div className="progress-bar-inner" style={{ width: `${pct}%` }}></div>
                             </div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                              <span>⏱ {formatTimeLeft(c.deadline)}</span>
+                              <span>⏱ {formatTimeLeft(c.deadline, c)}</span>
                               <span>👥 {c.donorCount} Donors</span>
                             </div>
                           </div>

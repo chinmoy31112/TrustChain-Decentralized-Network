@@ -42,7 +42,23 @@ export function calcProgress(raised: bigint | string | number, goal: bigint | st
   }
 }
 
-export function formatTimeLeft(deadline: number | bigint): string {
+export function formatTimeLeft(
+  deadline: number | bigint,
+  c?: {
+    status?: number;
+    active?: boolean;
+    withdrawn?: boolean;
+    deadline: number | bigint;
+    raised?: bigint | string | number;
+    goal?: bigint | string | number;
+  }
+): string {
+  if (c) {
+    const status = getCampaignStatus(c);
+    if (status === 'cancelled') return 'Cancelled';
+    if (status === 'completed') return 'Goal Met';
+    if (status === 'ended') return 'Ended';
+  }
   const now = Math.floor(Date.now() / 1000);
   const diff = Number(deadline) - now;
   if (diff <= 0) return 'Ended';

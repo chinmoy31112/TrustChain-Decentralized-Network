@@ -172,7 +172,7 @@ export default function HomePage() {
                           const statusBadge = getCampaignStatusBadge(c);
                           return <span className={`badge ${statusBadge.badgeCls}`}>{statusBadge.label}</span>;
                         })()}
-                        <span>⏱ {formatTimeLeft(c.deadline)}</span>
+                        <span>⏱ {formatTimeLeft(c.deadline, c)}</span>
                         <span>👥 {c.donorCount || 0}</span>
                       </div>
                     </div>

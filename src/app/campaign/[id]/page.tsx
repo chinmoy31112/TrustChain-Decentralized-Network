@@ -298,7 +298,7 @@ export default function CampaignDetailPage() {
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: '1.4rem', fontWeight: 800 }}>{pct}%</div>
                   <div style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                    {formatTimeLeft(c.deadline)}
+                    {formatTimeLeft(c.deadline, c)}
                   </div>
                 </div>
               </div>
@@ -611,8 +611,8 @@ export default function CampaignDetailPage() {
                   <div className="donate-stat-label">Funded</div>
                 </div>
                 <div className="donate-stat-item">
-                  <div className="donate-stat-value">{formatTimeLeft(c.deadline).split(' ')[0]}</div>
-                  <div className="donate-stat-label">{formatTimeLeft(c.deadline).includes('d') ? 'Days Left' : 'Time Left'}</div>
+                  <div className="donate-stat-value">{formatTimeLeft(c.deadline, c).split(' ')[0]}</div>
+                  <div className="donate-stat-label">{getCampaignStatus(c) === 'active' ? (formatTimeLeft(c.deadline, c).includes('d') ? 'Days Left' : 'Time Left') : 'Status'}</div>
                 </div>
               </div>
 
