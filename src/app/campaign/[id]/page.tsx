@@ -5,9 +5,10 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { parseEther } from 'viem';
+import { SafeImage } from '../../../components/SafeImage';
 import { useCampaign, useFundContractAddress } from '../../../hooks/useCharityFund';
 import { CHARITY_FUND_ABI, NFT_TIERS } from '../../../config/contracts';
-import { formatMnt, calcProgress, formatTimeLeft, getCategoryIcon, shortAddr, getDonorBadge, avatarStyle, initials, explorerAddress } from '../../../utils/formatters';
+import { formatMnt, calcProgress, formatTimeLeft, getCategoryIcon, shortAddr, getDonorBadge, avatarStyle, initials, explorerAddress, getCampaignStatusBadge } from '../../../utils/formatters';
 import { useToast } from '../../../components/Toast';
 import { TARGET_CHAIN_ID } from '../../../config/wagmi';
 
@@ -152,28 +153,42 @@ export default function CampaignDetailPage() {
     );
   };
 
-  const handleVote = (support: boolean) => {
-    if (!isConnected) {
-      toast.warning('Please connect your wallet first');
-      return;
-    }
-    if (chainId !== TARGET_CHAIN_ID) {
-      toast.error('Please switch to Mantle Sepolia Testnet');
-      return;
-    }
-    if (!fundAddress) return;
+  // Gasless opinion vote state
+  const [userVote, setUserVote] = useState<'up' | 'down' | null>(null);
+  const [voteOffset, setVoteOffset] = useState<{ up: number; down: number }>({ up: 0, down: 0 });
 
-    writeVote(
-      {
-        address: fundAddress,
-        abi: CHARITY_FUND_ABI,
-        functionName: 'vote',
-        args: [BigInt(c.id), support],
-      },
-      {
-        onSuccess: () => toast.info('Vote sent! Waiting for on-chain confirmation...'),
-        onError: (error: any) => toast.error(contractErrorMsg(error)),
+  useEffect(() => {
+    if (campaign?.id) {
+      const saved = localStorage.getItem(`trustchain_vote_${campaign.id}`);
+      if (saved === 'up' || saved === 'down') {
+        setUserVote(saved as 'up' | 'down');
       }
+    }
+  }, [campaign?.id]);
+
+  const handleVote = (support: boolean) => {
+    if (!campaign) return;
+    const voteType = support ? 'up' : 'down';
+    if (userVote === voteType) {
+      toast.info('You have already registered your opinion for this campaign.');
+      return;
+    }
+
+    let upDelta = 0;
+    let downDelta = 0;
+
+    if (userVote === 'up') upDelta -= 1;
+    if (userVote === 'down') downDelta -= 1;
+
+    if (support) upDelta += 1;
+    else downDelta += 1;
+
+    setUserVote(voteType);
+    setVoteOffset((prev) => ({ up: prev.up + upDelta, down: prev.down + downDelta }));
+    localStorage.setItem(`trustchain_vote_${campaign.id}`, voteType);
+
+    toast.success(
+      `Opinion recorded: ${support ? '👍 Supported' : '👎 Voted Against'}! Zero gas fee required ⚡`
     );
   };
 
@@ -236,8 +251,8 @@ export default function CampaignDetailPage() {
           {/* Main Column */}
           <div>
             <div style={{ position: 'relative', marginBottom: '1.5rem', borderRadius: 'var(--radius-lg)', overflow: 'hidden' }}>
-              <img
-                src={c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=1200&auto=format'}
+              <SafeImage
+                src={c.imageUrl}
                 alt={c.title}
                 className="detail-hero-img"
               />
@@ -245,9 +260,10 @@ export default function CampaignDetailPage() {
                 <span className="badge badge-purple">
                   {catIcon} {c.category}
                 </span>
-                <span className="badge badge-teal">
-                  {pct >= 100 ? 'Goal Met ✓' : c.withdrawn ? 'Withdrawn' : isEnded ? 'Ended' : 'Active'}
-                </span>
+                {(() => {
+                  const badge = getCampaignStatusBadge(c);
+                  return <span className={`badge ${badge.badgeCls}`}>{badge.label}</span>;
+                })()}
               </div>
             </div>
 
@@ -398,42 +414,56 @@ export default function CampaignDetailPage() {
             {/* Tab 3: Governance */}
             {activeTab === 'governance' && (
               <div className="tab-panel active">
-                <h3 style={{ marginBottom: '0.75rem' }}>Community Voting</h3>
+                <h3 style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>Community Opinion</span>
+                  <span className="badge badge-teal" style={{ fontSize: '0.75rem' }}>⚡ Zero Gas Fee</span>
+                </h3>
                 <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-                  Vote to express support or raise concerns for this cause. Any wallet connected to Mantle Sepolia can cast 1 vote.
+                  Share your opinion to indicate which individual campaigns need funding the most. Voting is completely free and requires zero blockchain transaction fees.
                 </p>
 
-                <div className="vote-bar-wrap" style={{ marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-                    <span>👍 Support ({c.voteCount})</span>
-                    <span>👎 Against ({c.againstCount})</span>
-                  </div>
-                  <div className="vote-bar-outer">
-                    <div
-                      className="vote-bar-inner"
-                      style={{
-                        width: `${Math.round((c.voteCount / ((c.voteCount + c.againstCount) || 1)) * 100)}%`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
+                {(() => {
+                  const totalUp = (c.voteCount || 0) + voteOffset.up;
+                  const totalDown = (c.againstCount || 0) + voteOffset.down;
+                  const totalVotes = totalUp + totalDown;
+                  const upPct = totalVotes > 0 ? Math.round((totalUp / totalVotes) * 100) : 50;
 
-                <div style={{ display: 'flex', gap: '1rem' }}>
-                  <button
-                    className="btn btn-primary"
-                    disabled={isVoting || isWaitingVote || isEnded}
-                    onClick={() => handleVote(true)}
-                  >
-                    {isVoting || isWaitingVote ? 'Submitting...' : '👍 Support Campaign'}
-                  </button>
-                  <button
-                    className="btn btn-danger"
-                    disabled={isVoting || isWaitingVote || isEnded}
-                    onClick={() => handleVote(false)}
-                  >
-                    {isVoting || isWaitingVote ? 'Submitting...' : '👎 Vote Against'}
-                  </button>
-                </div>
+                  return (
+                    <>
+                      <div className="vote-bar-wrap" style={{ marginBottom: '1.5rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
+                          <span style={{ fontWeight: 600, color: 'var(--teal)' }}>👍 Support ({totalUp})</span>
+                          <span style={{ fontWeight: 600, color: '#ff4757' }}>👎 Against ({totalDown})</span>
+                        </div>
+                        <div className="vote-bar-outer">
+                          <div
+                            className="vote-bar-inner"
+                            style={{
+                              width: `${upPct}%`,
+                            }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                        <button
+                          className={`btn ${userVote === 'up' ? 'btn-primary' : 'btn-outline'}`}
+                          style={userVote === 'up' ? { boxShadow: '0 0 15px rgba(0,212,170,0.4)' } : {}}
+                          onClick={() => handleVote(true)}
+                        >
+                          {userVote === 'up' ? '✓ Supported' : '👍 Support Campaign'}
+                        </button>
+                        <button
+                          className={`btn ${userVote === 'down' ? 'btn-danger' : 'btn-outline'}`}
+                          style={userVote === 'down' ? { background: '#ff4757', borderColor: '#ff4757', color: '#fff' } : {}}
+                          onClick={() => handleVote(false)}
+                        >
+                          {userVote === 'down' ? '✓ Voted Against' : '👎 Vote Against'}
+                        </button>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             )}
 

@@ -1,7 +1,7 @@
 export const CONTRACT_ADDRESSES = {
   5003: {
-    CharityFund: (process.env.NEXT_PUBLIC_CHARITY_FUND_ADDRESS || '0x43b22b168Eb6Eb544621c0A2B435b71946059d0a') as `0x${string}`,
-    CharityNFT: (process.env.NEXT_PUBLIC_CHARITY_NFT_ADDRESS || '0xa0aCbbfea66270E45037d04e4D758F2a6C6c434F') as `0x${string}`,
+    CharityFund: (process.env.NEXT_PUBLIC_CHARITY_FUND_ADDRESS || '0x4F0F20682ae2e929c07c37b4964a07163aDBFc18') as `0x${string}`,
+    CharityNFT: (process.env.NEXT_PUBLIC_CHARITY_NFT_ADDRESS || '0x6eE3F2822A749E48346eEbe752E19141f295C3A7') as `0x${string}`,
   },
   // Mainnet entry ready for future production configuration
   5000: {

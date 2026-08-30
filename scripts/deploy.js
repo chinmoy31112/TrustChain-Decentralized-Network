@@ -53,9 +53,21 @@ async function main() {
   console.log("CharityFund: ", fundAddress);
   console.log("\nNetwork:", network);
 
+  // Update src/config/contracts.ts automatically
+  const fs = require('fs');
+  const path = require('path');
+  const contractsTsPath = path.join(__dirname, '../src/config/contracts.ts');
+  if (fs.existsSync(contractsTsPath)) {
+    let content = fs.readFileSync(contractsTsPath, 'utf8');
+    content = content.replace(/CharityFund:\s*\(process\.env\.NEXT_PUBLIC_CHARITY_FUND_ADDRESS\s*\|\|\s*'0x[a-fA-F0-9]+'\)/, `CharityFund: (process.env.NEXT_PUBLIC_CHARITY_FUND_ADDRESS || '${fundAddress}')`);
+    content = content.replace(/CharityNFT:\s*\(process\.env\.NEXT_PUBLIC_CHARITY_NFT_ADDRESS\s*\|\|\s*'0x[a-fA-F0-9]+'\)/, `CharityNFT: (process.env.NEXT_PUBLIC_CHARITY_NFT_ADDRESS || '${nftAddress}')`);
+    fs.writeFileSync(contractsTsPath, content, 'utf8');
+    console.log("Updated src/config/contracts.ts with new deployed addresses!");
+  }
+
   // Generate config snippet
   const chainId = (await hre.ethers.provider.getNetwork()).chainId;
-  console.log("\n// Add to js/config.js CONTRACT_ADDRESSES:");
+  console.log("\n// Contract Addresses:");
   console.log(`${chainId}: { CharityFund: '${fundAddress}', CharityNFT: '${nftAddress}' },`);
 
   // Verify instructions

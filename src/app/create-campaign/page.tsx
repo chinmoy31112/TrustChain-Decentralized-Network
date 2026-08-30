@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { parseEther, decodeEventLog } from 'viem';
 import { CHARITY_FUND_ABI, CATEGORIES } from '../../config/contracts';
 import { useFundContractAddress } from '../../hooks/useCharityFund';
+import { SafeImage, formatImageUrl } from '../../components/SafeImage';
 import { useToast } from '../../components/Toast';
 import { TARGET_CHAIN_ID } from '../../config/wagmi';
 
@@ -32,8 +33,11 @@ export default function CreateCampaignPage() {
     hash: txHash,
   });
 
+  const handledReceiptRef = useRef(false);
+
   useEffect(() => {
-    if (isDeploySuccess && receipt) {
+    if (isDeploySuccess && receipt && !handledReceiptRef.current) {
+      handledReceiptRef.current = true;
       toast.success('Campaign deployed successfully on Mantle Sepolia! 🎉');
       
       // Try to parse CampaignCreated event
@@ -53,12 +57,12 @@ export default function CreateCampaignPage() {
       }
 
       setTimeout(() => {
-        if (createdId) {
+        if (createdId && createdId > 0) {
           router.push(`/campaign/${createdId}`);
         } else {
-          router.push('/dashboard');
+          router.push('/campaigns');
         }
-      }, 1500);
+      }, 1200);
     }
   }, [isDeploySuccess, receipt, toast, router]);
 
@@ -124,6 +128,8 @@ export default function CreateCampaignPage() {
       return;
     }
 
+    handledReceiptRef.current = false;
+
     writeContract(
       {
         address: fundAddress,
@@ -133,7 +139,7 @@ export default function CreateCampaignPage() {
           formData.title.trim(),
           formData.description.trim(),
           formData.category,
-          formData.imageUrl.trim() || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format',
+          formatImageUrl(formData.imageUrl),
           formData.ipfsHash.trim(),
           parseEther(formData.goal),
           BigInt(formData.duration),
@@ -340,7 +346,7 @@ export default function CreateCampaignPage() {
 
                 {formData.imageUrl && (
                   <div style={{ marginBottom: '2rem', borderRadius: '12px', overflow: 'hidden', height: '180px' }}>
-                    <img
+                    <SafeImage
                       src={formData.imageUrl}
                       alt="Preview"
                       style={{ width: '100%', height: '100%', objectFit: 'cover' }}

@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { usePlatformStats, useAllCampaigns } from '../hooks/useCharityFund';
 import { ParticleCanvas } from '../components/ParticleCanvas';
+import { SafeImage } from '../components/SafeImage';
 import { formatMntLabel, formatMnt, calcProgress, formatTimeLeft, getCategoryIcon } from '../utils/formatters';
 import { CATEGORIES } from '../config/contracts';
 
@@ -144,8 +145,8 @@ export default function HomePage() {
                 >
                   <article className={`card campaign-card fade-up stagger-${i + 1}`} style={{ cursor: 'pointer', height: '100%' }}>
                     <div className="campaign-card-img-wrapper" style={{ position: 'relative' }}>
-                      <img
-                        src={c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format'}
+                      <SafeImage
+                        src={c.imageUrl}
                         alt={c.title}
                         className="campaign-card-img"
                         loading="lazy"

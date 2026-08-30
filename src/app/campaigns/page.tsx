@@ -4,8 +4,9 @@ import React, { useState, useMemo, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useAllCampaigns } from '../../hooks/useCharityFund';
+import { SafeImage } from '../../components/SafeImage';
 import { CATEGORIES } from '../../config/contracts';
-import { formatMnt, calcProgress, formatTimeLeft, getCategoryIcon } from '../../utils/formatters';
+import { formatMnt, calcProgress, formatTimeLeft, getCategoryIcon, getCampaignStatus, getCampaignStatusBadge } from '../../utils/formatters';
 
 function CampaignsContent() {
   const searchParams = useSearchParams();
@@ -29,9 +30,10 @@ function CampaignsContent() {
       }
 
       // Status filter
-      if (activeStatus === 'active' && (!c.active || c.deadline < now)) return false;
-      if (activeStatus === 'completed' && !(c.raised >= c.goal || !c.active)) return false;
-      if (activeStatus === 'ended' && c.deadline >= now) return false;
+      if (activeStatus !== 'all') {
+        const cStatus = getCampaignStatus(c);
+        if (cStatus !== activeStatus) return false;
+      }
 
       // Search query
       if (searchQuery.trim()) {
@@ -128,6 +130,7 @@ function CampaignsContent() {
             { label: 'Active', value: 'active' },
             { label: 'Goal Met', value: 'completed' },
             { label: 'Ended', value: 'ended' },
+            { label: 'Cancelled', value: 'cancelled' },
           ].map((tab) => (
             <button
               key={tab.value}
@@ -212,8 +215,8 @@ function CampaignsContent() {
                 >
                   <article className={`card campaign-card fade-up stagger-${(i % 6) + 1}`} style={{ cursor: 'pointer', height: '100%' }}>
                     <div className="campaign-card-img-wrapper" style={{ position: 'relative' }}>
-                      <img
-                        src={c.imageUrl || 'https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?w=800&auto=format'}
+                      <SafeImage
+                        src={c.imageUrl}
                         alt={c.title}
                         className="campaign-card-img"
                         loading="lazy"
@@ -235,7 +238,10 @@ function CampaignsContent() {
                         </div>
                       </div>
                       <div className="campaign-card-meta">
-                        <span className="badge badge-teal">{pct >= 100 ? 'Goal Met ✓' : 'Active'}</span>
+                        {(() => {
+                          const statusBadge = getCampaignStatusBadge(c);
+                          return <span className={`badge ${statusBadge.badgeCls}`}>{statusBadge.label}</span>;
+                        })()}
                         <span>⏱ {formatTimeLeft(c.deadline)}</span>
                         <span>👥 {c.donorCount || 0}</span>
                       </div>

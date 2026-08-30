@@ -116,3 +116,41 @@ export function explorerTx(hash: string): string {
 export function explorerAddress(addr: string): string {
   return `https://sepolia.mantlescan.xyz/address/${addr}`;
 }
+
+export type CampaignStatusType = 'active' | 'completed' | 'ended' | 'cancelled';
+
+export function getCampaignStatus(c: {
+  status?: number;
+  active?: boolean;
+  withdrawn?: boolean;
+  deadline: number | bigint;
+  raised: bigint | string | number;
+  goal: bigint | string | number;
+}): CampaignStatusType {
+  if (c.status === 3) {
+    return 'cancelled';
+  }
+  if (calcProgress(c.raised, c.goal) >= 100) {
+    return 'completed';
+  }
+  const now = Math.floor(Date.now() / 1000);
+  if (Number(c.deadline) < now || (c.active === false && !c.withdrawn) || c.status === 1 || c.status === 2) {
+    return 'ended';
+  }
+  return 'active';
+}
+
+export function getCampaignStatusBadge(c: Parameters<typeof getCampaignStatus>[0]) {
+  const status = getCampaignStatus(c);
+  switch (status) {
+    case 'cancelled':
+      return { label: 'Cancelled ✕', badgeCls: 'badge-danger', status };
+    case 'completed':
+      return { label: 'Goal Met ✓', badgeCls: 'badge-gold', status };
+    case 'ended':
+      return { label: 'Ended', badgeCls: 'badge-gray', status };
+    case 'active':
+    default:
+      return { label: 'Active', badgeCls: 'badge-teal', status };
+  }
+}
