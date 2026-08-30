@@ -142,8 +142,8 @@ function campaignCardHTML(c, i) {
 
         <div class="progress-wrap">
           <div class="progress-info">
-            <span class="progress-raised">${raisedEth} ETH</span>
-            <span class="progress-goal">of ${goalEth} ETH</span>
+            <span class="progress-raised">${raisedEth} MNT</span>
+            <span class="progress-goal">of ${goalEth} MNT</span>
           </div>
           <div class="progress-bar-outer">
             <div class="progress-bar-inner" data-pct="${pct}" style="width:0%"></div>

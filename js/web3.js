@@ -837,10 +837,29 @@ window.closeModal = function(id) {
 // ══════════════════════════════════════════════════════════════
 // Smart Contract Helpers
 // ══════════════════════════════════════════════════════════════
-async function loadCampaigns() {
-  if (W3.fundContract) {
+function getReadContract() {
+  if (W3.fundContract) return W3.fundContract;
+  
+  const chainId = W3.chainId || window.DEFAULT_CHAIN_ID || 5003;
+  const net = window.NETWORKS[chainId];
+  const addrs = window.CONTRACT_ADDRESSES[chainId];
+
+  if (net && addrs && addrs.CharityFund && addrs.CharityFund !== '') {
     try {
-      const campaigns = await W3.fundContract.getAllCampaigns();
+      const readProvider = new ethers.JsonRpcProvider(net.rpcUrl);
+      return new ethers.Contract(addrs.CharityFund, window.CHARITY_FUND_ABI, readProvider);
+    } catch (e) {
+      console.error('Failed to create read-only provider:', e);
+    }
+  }
+  return null;
+}
+
+async function loadCampaigns() {
+  const contract = getReadContract();
+  if (contract) {
+    try {
+      const campaigns = await contract.getAllCampaigns();
       return campaigns.map(c => ({
         id: Number(c.id),
         creator: c.creator,
@@ -864,13 +883,14 @@ async function loadCampaigns() {
       console.error('Contract read failed:', e);
     }
   }
-  return window.DEMO_CAMPAIGNS;
+  return [];
 }
 
 async function loadCampaign(id) {
-  if (W3.fundContract) {
+  const contract = getReadContract();
+  if (contract) {
     try {
-      const c = await W3.fundContract.getCampaign(id);
+      const c = await contract.getCampaign(id);
       return {
         id: Number(c.id),
         creator: c.creator,
@@ -894,13 +914,14 @@ async function loadCampaign(id) {
       console.error('Failed to load campaign:', e);
     }
   }
-  return window.DEMO_CAMPAIGNS.find(c => c.id == id) || null;
+  return null;
 }
 
 async function loadStats() {
-  if (W3.fundContract) {
+  const contract = getReadContract();
+  if (contract) {
     try {
-      const [campaigns, raised, donors] = await W3.fundContract.getStats();
+      const [campaigns, raised, donors] = await contract.getStats();
       return {
         campaigns: campaigns.toString(),
         raised: raised.toString(),
@@ -911,9 +932,9 @@ async function loadStats() {
     }
   }
   return {
-    campaigns: window.DEMO_CAMPAIGNS.length.toString(),
-    raised: window.DEMO_CAMPAIGNS.reduce((a, c) => a + BigInt(c.raised), 0n).toString(),
-    donors: '2041'
+    campaigns: '0',
+    raised: '0',
+    donors: '0'
   };
 }
 

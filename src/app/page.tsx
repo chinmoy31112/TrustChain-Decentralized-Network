@@ -131,7 +131,19 @@ export default function HomePage() {
           </div>
 
           <div className="grid-3" id="featuredCampaigns">
-            {featuredCampaigns.map((c, i) => {
+            {featuredCampaigns.length === 0 ? (
+              <div className="card" style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3.5rem 1.5rem' }}>
+                <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🌱</div>
+                <h3 style={{ marginBottom: '0.5rem' }}>No Active Campaigns Yet</h3>
+                <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+                  Be the first to launch a transparent charity campaign on Mantle Network!
+                </p>
+                <Link href="/create-campaign" className="btn btn-primary btn-sm">
+                  ✨ Start a Campaign
+                </Link>
+              </div>
+            ) : (
+              featuredCampaigns.map((c, i) => {
               const pct = calcProgress(c.raised, c.goal);
               const raisedStr = formatMnt(c.raised);
               const goalStr = formatMnt(c.goal);
@@ -179,7 +191,8 @@ export default function HomePage() {
                   </article>
                 </Link>
               );
-            })}
+            })
+            )}
           </div>
         </div>
       </section>

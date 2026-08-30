@@ -142,7 +142,7 @@ export default function CampaignDetailPage() {
       return;
     }
 
-    writeDonate(
+    (writeDonate as any)(
       {
         address: fundAddress,
         abi: CHARITY_FUND_ABI,
@@ -198,7 +198,7 @@ export default function CampaignDetailPage() {
 
   const handleWithdraw = () => {
     if (!fundAddress) return;
-    writeWithdraw(
+    (writeWithdraw as any)(
       {
         address: fundAddress,
         abi: CHARITY_FUND_ABI,
@@ -215,7 +215,7 @@ export default function CampaignDetailPage() {
   const handleCancel = () => {
     if (!confirm('Are you sure you want to cancel this campaign? All donors will be refunded automatically.')) return;
     if (!fundAddress) return;
-    writeCancel(
+    (writeCancel as any)(
       {
         address: fundAddress,
         abi: CHARITY_FUND_ABI,

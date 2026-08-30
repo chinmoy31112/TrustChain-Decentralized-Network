@@ -49,8 +49,8 @@ export default function CreateCampaignPage() {
             data: log.data,
             topics: log.topics,
           });
-          if (parsed.eventName === 'CampaignCreated') {
-            createdId = Number((parsed.args as any).id);
+          if ((parsed as any).eventName === 'CampaignCreated') {
+            createdId = Number((parsed as any).args?.id);
             break;
           }
         } catch {}
@@ -130,7 +130,7 @@ export default function CreateCampaignPage() {
 
     handledReceiptRef.current = false;
 
-    writeContract(
+    (writeContract as any)(
       {
         address: fundAddress,
         abi: CHARITY_FUND_ABI,

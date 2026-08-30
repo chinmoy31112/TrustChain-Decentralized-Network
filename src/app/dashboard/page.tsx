@@ -87,7 +87,7 @@ export default function DashboardPage() {
                     </span>
                   </div>
                   <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                    Balance: {balanceData ? `${parseFloat(balanceData.formatted).toFixed(4)} ${balanceData.symbol}` : '-- MNT'}
+                    Balance: {balanceData ? `${(Number(balanceData.value) / 10 ** balanceData.decimals).toFixed(4)} ${balanceData.symbol}` : '-- MNT'}
                     {' '}· Network: {isMantleSepolia ? 'Mantle Sepolia' : `Chain ${chainId}`}
                   </div>
                 </div>

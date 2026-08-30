@@ -455,6 +455,15 @@
       const grid = document.getElementById('featuredCampaigns');
       if (!grid) return;
 
+      if (!featured || featured.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column:1/-1;text-align:center;padding:3rem 1rem;background:rgba(255,255,255,0.02);border-radius:1rem;border:1px solid rgba(255,255,255,0.05)">
+            <p style="font-size:1.1rem;color:var(--text-secondary);margin-bottom:1rem">No active campaigns available on Mantle Network yet.</p>
+            <a href="create-campaign.html" class="btn btn-primary btn-sm">✨ Start First Campaign</a>
+          </div>`;
+        return;
+      }
+
       grid.innerHTML = featured.map((c, i) => {
         const pct = utils.progress(c.raised, c.goal);
         const raised = utils.formatEth(c.raised);

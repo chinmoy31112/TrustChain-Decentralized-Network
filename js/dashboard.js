@@ -51,7 +51,7 @@ async function renderMyStats() {
   document.getElementById('myAddrDisplay')?.setAttribute('title', W3.address);
   document.getElementById('myAddrDisplay').textContent = utils.shortAddr(W3.address);
 
-  document.getElementById('myTotalDonated').textContent = ethDonated + ' ETH';
+  document.getElementById('myTotalDonated').textContent = ethDonated + ' MNT';
   document.getElementById('myDonationCount').textContent = stats.donationCount;
 
   const badgeEl = document.getElementById('myBadge');
@@ -98,7 +98,7 @@ async function renderMyCampaigns() {
         <div style="display:flex;align-items:center;gap:1rem">
           <div style="flex:1;min-width:0">
             <div style="font-weight:700;margin-bottom:0.25rem">${escHtml(c.title)}</div>
-            <div style="font-size:0.8rem;color:var(--text-secondary)">${utils.formatEth(c.raised)} / ${utils.formatEth(c.goal)} ETH raised</div>
+            <div style="font-size:0.8rem;color:var(--text-secondary)">${utils.formatEth(c.raised)} / ${utils.formatEth(c.goal)} MNT raised</div>
           </div>
           <div style="text-align:right;flex-shrink:0">
             ${utils.statusBadge(c)}
@@ -179,7 +179,7 @@ function nftCardHTML(token) {
       ">
         <div style="font-size:3rem;margin-bottom:0.75rem">🏅</div>
         <div style="font-weight:800;font-size:1.2rem;background:var(--gradient-main);-webkit-background-clip:text;-webkit-text-fill-color:transparent">
-          ${amount} ETH
+          ${amount} MNT
         </div>
         <div style="font-size:0.78rem;color:var(--text-secondary);margin-top:0.25rem">${escHtml(token.campaignTitle || '')}</div>
         <span class="badge ${badgeCls}" style="margin-top:0.75rem">${token.badge}</span>
@@ -197,23 +197,19 @@ async function renderLeaderboard() {
   if (!container) return;
 
   let wallets = [], amounts = [];
-  let useDemo = true;
+  const contract = getReadContract();
 
-  if (W3.fundContract) {
+  if (contract) {
     try {
-      const [w, a] = await W3.fundContract.getLeaderboard(10);
+      const [w, a] = await contract.getLeaderboard(10);
       wallets = w; amounts = a;
-      useDemo = false;
-    } catch {}
-  }
-
-  if (useDemo) {
-    wallets = window.DEMO_LEADERBOARD.map(d => d.address);
-    amounts = window.DEMO_LEADERBOARD.map(d => d.total);
+    } catch (e) {
+      console.error('Failed to read leaderboard:', e);
+    }
   }
 
   if (!wallets.length) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏆</div><h3>No donors yet</h3></div>`;
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🏆</div><h3>No donors yet</h3><p style="color:var(--text-secondary);font-size:0.85rem">Be the first to donate on Mantle Network!</p></div>`;
     return;
   }
 
@@ -232,7 +228,7 @@ async function renderLeaderboard() {
           <div class="lb-address">${utils.shortAddr(addr)} ${isMe ? '<span class="badge badge-teal">You</span>' : ''}</div>
           <div class="lb-count"><span class="badge ${badge.color}">${badge.label}</span></div>
         </div>
-        <div class="lb-amount">${amountEth} ETH</div>
+        <div class="lb-amount">${amountEth} MNT</div>
       </div>
     `;
   }).join('');

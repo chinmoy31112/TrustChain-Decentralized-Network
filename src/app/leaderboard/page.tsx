@@ -102,6 +102,17 @@ export default function LeaderboardPage() {
               <div className="spinner"></div>
               <span>Loading rankings...</span>
             </div>
+          ) : leaderboard.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '3.5rem 1.5rem', color: 'var(--text-muted)' }}>
+              <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>🏆</div>
+              <h3 style={{ color: 'var(--text-primary)', marginBottom: '0.5rem' }}>No Donors Yet</h3>
+              <p style={{ maxWidth: '400px', margin: '0 auto 1.5rem auto' }}>
+                Be the first to donate to a campaign on Mantle Network and claim the #1 rank on the global leaderboard!
+              </p>
+              <Link href="/campaigns" className="btn btn-primary btn-sm">
+                🌍 Explore Campaigns to Donate
+              </Link>
+            </div>
           ) : (
             <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
               <thead>

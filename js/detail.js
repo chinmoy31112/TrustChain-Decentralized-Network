@@ -130,8 +130,8 @@ function renderDetail(c) {
           <div class="card" style="padding:1.5rem;margin-bottom:2rem">
             <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1rem">
               <div>
-                <div style="font-size:2rem;font-weight:900;color:var(--teal)">${raisedEth} ETH</div>
-                <div style="color:var(--text-secondary);font-size:0.85rem">raised of ${goalEth} ETH goal</div>
+                <div style="font-size:2rem;font-weight:900;color:var(--teal)">${raisedEth} MNT</div>
+                <div style="color:var(--text-secondary);font-size:0.85rem">raised of ${goalEth} MNT goal</div>
               </div>
               <div style="text-align:right">
                 <div style="font-size:1.4rem;font-weight:800">${pct}%</div>
@@ -226,12 +226,12 @@ function renderDetail(c) {
             ` : ''}
 
             <div class="amount-presets">
-              <button class="amount-preset" data-amount="0.01">0.01 ETH</button>
-              <button class="amount-preset" data-amount="0.05">0.05 ETH</button>
-              <button class="amount-preset" data-amount="0.1">0.1 ETH</button>
-              <button class="amount-preset" data-amount="0.5">0.5 ETH</button>
-              <button class="amount-preset" data-amount="1">1 ETH</button>
-              <button class="amount-preset" data-amount="5">5 ETH</button>
+              <button class="amount-preset" data-amount="0.01">0.01 MNT</button>
+              <button class="amount-preset" data-amount="0.05">0.05 MNT</button>
+              <button class="amount-preset" data-amount="0.1">0.1 MNT</button>
+              <button class="amount-preset" data-amount="0.5">0.5 MNT</button>
+              <button class="amount-preset" data-amount="1">1 MNT</button>
+              <button class="amount-preset" data-amount="5">5 MNT</button>
             </div>
 
             <div class="form-group">
@@ -246,7 +246,7 @@ function renderDetail(c) {
                   step="0.001"
                   ${isEnded || c.withdrawn ? 'disabled' : ''}
                 />
-                <span class="input-addon">ETH</span>
+                <span class="input-addon">MNT</span>
               </div>
               <p class="form-hint" id="donateUsdPreview"></p>
             </div>
@@ -268,7 +268,7 @@ function renderDetail(c) {
             <div class="donate-stats">
               <div class="donate-stat-item">
                 <div class="donate-stat-value">${raisedEth}</div>
-                <div class="donate-stat-label">ETH Raised</div>
+                <div class="donate-stat-label">MNT Raised</div>
               </div>
               <div class="donate-stat-item">
                 <div class="donate-stat-value">${c.donorCount || 0}</div>
@@ -407,7 +407,7 @@ async function handleDonate() {
 
   const minDonation = 0.0001;
   if (parseFloat(amount) < minDonation) {
-    toast.error(`Minimum donation is ${minDonation} ETH`);
+    toast.error(`Minimum donation is ${minDonation} MNT`);
     return;
   }
 
@@ -416,7 +416,7 @@ async function handleDonate() {
   btn.innerHTML = '<div class="spinner"></div> Processing…';
 
   try {
-    const value = ethers.utils.parseEther(amount);
+    const value = ethers.parseEther(amount);
     const tx = await W3.fundContract.donate(currentCampaign.id, { value });
 
     toast.info('Transaction submitted! Waiting for confirmation…', 8000);
@@ -425,7 +425,7 @@ async function handleDonate() {
     const event = receipt.events?.find(e => e.event === 'DonationMade');
     const tokenId = event?.args?.tokenId?.toString();
 
-    toast.success(`Donated ${amount} ETH! 🎉 NFT Receipt #${tokenId} minted to your wallet.`, 7000);
+    toast.success(`Donated ${amount} MNT! 🎉 NFT Receipt #${tokenId} minted to your wallet.`, 7000);
 
     // Refresh page data
     setTimeout(() => window.location.reload(), 2000);

@@ -140,8 +140,8 @@ export function getCampaignStatus(c: {
   active?: boolean;
   withdrawn?: boolean;
   deadline: number | bigint;
-  raised: bigint | string | number;
-  goal: bigint | string | number;
+  raised?: bigint | string | number;
+  goal?: bigint | string | number;
 }): CampaignStatusType {
   // Solidity Enum: 0 = Active, 1 = Completed, 2 = Cancelled, 3 = Withdrawn
   if (c.status === 2) {

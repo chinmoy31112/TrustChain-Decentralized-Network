@@ -103,7 +103,7 @@ async function handleCreate(e) {
   if (!title || title.length < 5)    errors.push('Title must be at least 5 characters');
   if (!desc  || desc.length < 20)    errors.push('Description must be at least 20 characters');
   if (!category)                     errors.push('Please select a category');
-  if (!utils.isValidEth(goal))       errors.push('Enter a valid goal amount in ETH');
+  if (!utils.isValidEth(goal))       errors.push('Enter a valid goal amount in MNT');
   if (!duration || parseInt(duration) < 1 || parseInt(duration) > 365) errors.push('Duration must be 1–365 days');
 
   if (errors.length) {
@@ -117,9 +117,9 @@ async function handleCreate(e) {
   submitBtn.innerHTML = '<div class="spinner"></div> Creating Campaign…';
 
   try {
-    const goalWei = ethers.utils.parseEther(goal);
+    const goalWei = ethers.parseEther(goal);
     const tx = await W3.fundContract.createCampaign(
-      title, desc, category, imageUrl, goalWei, parseInt(duration)
+      title, desc, category, imageUrl, "", goalWei, parseInt(duration)
     );
 
     toast.info('Transaction submitted. Waiting for confirmation…', 6000);

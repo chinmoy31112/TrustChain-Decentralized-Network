@@ -25,8 +25,8 @@ export function useAllCampaigns() {
     },
   });
 
-  // Fall back to demo data when contract read fails OR returns empty
-  const campaigns: CampaignData[] = Array.isArray(data) && data.length > 0
+  // Return real contract data or [] when no contract data exists
+  const campaigns: CampaignData[] = Array.isArray(data)
     ? data.map((c: any) => ({
         id: Number(c.id),
         creator: c.creator,
@@ -46,9 +46,8 @@ export function useAllCampaigns() {
         createdAt: Number(c.createdAt),
         status: Number(c.status),
       }))
-    : DEMO_CAMPAIGNS;
+    : [];
 
-  // If the query errored out, stop showing loading spinner — use demo data
   const effectiveLoading = isError ? false : (isLoading && !data);
 
   return { campaigns, isLoading: effectiveLoading, isError, refetch };
@@ -89,7 +88,7 @@ export function useCampaign(id: number) {
         createdAt: Number((data as any).createdAt),
         status: Number((data as any).status),
       }
-    : DEMO_CAMPAIGNS.find((c) => c.id === id) || null;
+    : null;
 
   const effectiveLoading = isError ? false : (isLoading && !data && !campaign);
 
@@ -120,11 +119,10 @@ export function usePlatformStats() {
     };
   }
 
-  const demoTotalRaised = DEMO_CAMPAIGNS.reduce((acc, c) => acc + c.raised, 0n);
   return {
-    campaigns: DEMO_CAMPAIGNS.length,
-    raised: demoTotalRaised,
-    donors: 2480,
+    campaigns: 0,
+    raised: 0n,
+    donors: 0,
     isLoading: false,
     refetch,
   };
@@ -173,7 +171,7 @@ export function useLeaderboard(limit = 10) {
     },
   });
 
-  let leaderboard = DEMO_LEADERBOARD;
+  let leaderboard: any[] = [];
 
   if (Array.isArray(data) && data.length === 2 && Array.isArray(data[0]) && data[0].length > 0) {
     const wallets = data[0] as `0x${string}`[];

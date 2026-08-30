@@ -159,24 +159,17 @@
     async function loadDonorLeaderboard() {
       let donors = [];
 
-      if (W3.fundContract) {
+      const contract = getReadContract();
+      if (contract) {
         try {
-          const [wallets, amounts] = await W3.fundContract.getLeaderboard(20);
+          const [wallets, amounts] = await contract.getLeaderboard(20);
           donors = wallets.map((w, i) => ({
             address: w,
             total: amounts[i].toString()
           })).filter(d => d.total !== '0');
         } catch (e) {
-          console.log('Using demo leaderboard');
+          console.error('Leaderboard read failed:', e);
         }
-      }
-
-      // Fallback to demo data
-      if (donors.length === 0) {
-        donors = window.DEMO_LEADERBOARD.map(d => ({
-          address: d.address,
-          total: d.total
-        }));
       }
 
       // Render podium (top 3)
