@@ -1,0 +1,192 @@
+'use client';
+
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount, useChainId } from 'wagmi';
+import { CHARITY_FUND_ABI, CONTRACT_ADDRESSES } from '../config/contracts';
+import { DEMO_CAMPAIGNS, DEMO_LEADERBOARD, CampaignData } from '../config/demoData';
+import { TARGET_CHAIN_ID } from '../config/wagmi';
+
+export function useFundContractAddress() {
+  const chainId = useChainId();
+  return CONTRACT_ADDRESSES[5003]?.CharityFund;
+}
+
+export function useAllCampaigns() {
+  const fundAddress = useFundContractAddress();
+
+  const { data, isLoading, isError, refetch } = useReadContract({
+    address: fundAddress,
+    abi: CHARITY_FUND_ABI,
+    functionName: 'getAllCampaigns',
+    query: {
+      enabled: Boolean(fundAddress && fundAddress !== '0x0000000000000000000000000000000000000000'),
+      retry: 1,            // only retry once instead of indefinitely
+      retryDelay: 2000,
+      staleTime: 30_000,
+    },
+  });
+
+  // Fall back to demo data when contract read fails OR returns empty
+  const campaigns: CampaignData[] = Array.isArray(data) && data.length > 0
+    ? data.map((c: any) => ({
+        id: Number(c.id),
+        creator: c.creator,
+        title: c.title,
+        description: c.description,
+        category: c.category,
+        imageUrl: c.imageUrl,
+        ipfsHash: c.ipfsHash,
+        goal: BigInt(c.goal?.toString() || '0'),
+        raised: BigInt(c.raised?.toString() || '0'),
+        deadline: Number(c.deadline),
+        withdrawn: Boolean(c.withdrawn),
+        active: Boolean(c.active),
+        donorCount: Number(c.donorCount),
+        voteCount: Number(c.voteCount),
+        againstCount: Number(c.againstCount),
+        createdAt: Number(c.createdAt),
+        status: Number(c.status),
+      }))
+    : DEMO_CAMPAIGNS;
+
+  // If the query errored out, stop showing loading spinner — use demo data
+  const effectiveLoading = isError ? false : (isLoading && !data);
+
+  return { campaigns, isLoading: effectiveLoading, isError, refetch };
+}
+
+export function useCampaign(id: number) {
+  const fundAddress = useFundContractAddress();
+
+  const { data, isLoading, isError, refetch } = useReadContract({
+    address: fundAddress,
+    abi: CHARITY_FUND_ABI,
+    functionName: 'getCampaign',
+    args: [BigInt(id)],
+    query: {
+      enabled: Boolean(fundAddress && id > 0),
+      retry: 1,
+      retryDelay: 2000,
+    },
+  });
+
+  const campaign: CampaignData | null = data
+    ? {
+        id: Number((data as any).id),
+        creator: (data as any).creator,
+        title: (data as any).title,
+        description: (data as any).description,
+        category: (data as any).category,
+        imageUrl: (data as any).imageUrl,
+        ipfsHash: (data as any).ipfsHash,
+        goal: BigInt((data as any).goal?.toString() || '0'),
+        raised: BigInt((data as any).raised?.toString() || '0'),
+        deadline: Number((data as any).deadline),
+        withdrawn: Boolean((data as any).withdrawn),
+        active: Boolean((data as any).active),
+        donorCount: Number((data as any).donorCount),
+        voteCount: Number((data as any).voteCount),
+        againstCount: Number((data as any).againstCount),
+        createdAt: Number((data as any).createdAt),
+        status: Number((data as any).status),
+      }
+    : DEMO_CAMPAIGNS.find((c) => c.id === id) || null;
+
+  const effectiveLoading = isError ? false : (isLoading && !data && !campaign);
+
+  return { campaign, isLoading: effectiveLoading, isError, refetch };
+}
+
+export function usePlatformStats() {
+  const fundAddress = useFundContractAddress();
+
+  const { data, isLoading, refetch } = useReadContract({
+    address: fundAddress,
+    abi: CHARITY_FUND_ABI,
+    functionName: 'getStats',
+    query: {
+      enabled: Boolean(fundAddress),
+      retry: 1,
+      retryDelay: 2000,
+    },
+  });
+
+  if (Array.isArray(data) && data.length === 3) {
+    return {
+      campaigns: Number(data[0]),
+      raised: BigInt(data[1].toString()),
+      donors: Number(data[2]),
+      isLoading,
+      refetch,
+    };
+  }
+
+  const demoTotalRaised = DEMO_CAMPAIGNS.reduce((acc, c) => acc + c.raised, 0n);
+  return {
+    campaigns: DEMO_CAMPAIGNS.length,
+    raised: demoTotalRaised,
+    donors: 2480,
+    isLoading: false,
+    refetch,
+  };
+}
+
+export function useDonorStats(address?: `0x${string}`) {
+  const fundAddress = useFundContractAddress();
+
+  const { data, isLoading, refetch } = useReadContract({
+    address: fundAddress,
+    abi: CHARITY_FUND_ABI,
+    functionName: 'getDonorStats',
+    args: address ? [address] : undefined,
+    query: {
+      enabled: Boolean(fundAddress && address),
+      retry: 1,
+    },
+  });
+
+  return {
+    stats: data
+      ? {
+          wallet: (data as any).wallet,
+          totalDonated: BigInt((data as any).totalDonated?.toString() || '0'),
+          donationCount: Number((data as any).donationCount || 0),
+          firstDonation: Number((data as any).firstDonation || 0),
+          nftCount: Number((data as any).nftCount || 0),
+        }
+      : null,
+    isLoading,
+    refetch,
+  };
+}
+
+export function useLeaderboard(limit = 10) {
+  const fundAddress = useFundContractAddress();
+
+  const { data, isLoading, refetch } = useReadContract({
+    address: fundAddress,
+    abi: CHARITY_FUND_ABI,
+    functionName: 'getLeaderboard',
+    args: [BigInt(limit)],
+    query: {
+      enabled: Boolean(fundAddress),
+      retry: 1,
+    },
+  });
+
+  let leaderboard = DEMO_LEADERBOARD;
+
+  if (Array.isArray(data) && data.length === 2 && Array.isArray(data[0]) && data[0].length > 0) {
+    const wallets = data[0] as `0x${string}`[];
+    const amounts = data[1] as bigint[];
+    leaderboard = wallets
+      .map((w, idx) => ({
+        address: w,
+        total: BigInt(amounts[idx]?.toString() || '0'),
+        count: 1,
+        badge: 'Donor',
+      }))
+      .filter((d) => d.total > 0n);
+  }
+
+  return { leaderboard, isLoading, refetch };
+}
