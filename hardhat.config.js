@@ -2,7 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
 
 const rawKey = (process.env.PRIVATE_KEY || "").trim();
-const PRIVATE_KEY = rawKey.length > 0 ? (rawKey.startsWith("0x") ? rawKey : `0x${rawKey}`) : "0x0000000000000000000000000000000000000000000000000000000000000001";
+const PRIVATE_KEY = rawKey.length > 0 ? (rawKey.startsWith("0x") ? rawKey : `0x${rawKey}`) : null;
 
 module.exports = {
   solidity: {
@@ -23,12 +23,12 @@ module.exports = {
     mantleSepolia: {
       url: "https://rpc.sepolia.mantle.xyz",
       chainId: 5003,
-      accounts: [PRIVATE_KEY],
+      accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
     },
     mantleMainnet: {
       url: "https://rpc.mantle.xyz",
       chainId: 5000,
-      accounts: [PRIVATE_KEY],
+      accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
     }
   },
   etherscan: {
