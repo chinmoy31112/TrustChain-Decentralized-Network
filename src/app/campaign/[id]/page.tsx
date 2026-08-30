@@ -8,7 +8,7 @@ import { parseEther } from 'viem';
 import { SafeImage } from '../../../components/SafeImage';
 import { useCampaign, useFundContractAddress, useCampaignDonations } from '../../../hooks/useCharityFund';
 import { CHARITY_FUND_ABI, NFT_TIERS } from '../../../config/contracts';
-import { formatMnt, calcProgress, formatTimeLeft, getCategoryIcon, shortAddr, getDonorBadge, avatarStyle, initials, explorerAddress, getCampaignStatusBadge } from '../../../utils/formatters';
+import { formatMnt, calcProgress, formatTimeLeft, getCategoryIcon, shortAddr, getDonorBadge, avatarStyle, initials, explorerAddress, getCampaignStatus, getCampaignStatusBadge } from '../../../utils/formatters';
 import { useToast } from '../../../components/Toast';
 import { TARGET_CHAIN_ID } from '../../../config/wagmi';
 
@@ -21,7 +21,7 @@ export default function CampaignDetailPage() {
   const chainId = useChainId();
   const { toast } = useToast();
   const fundAddress = useFundContractAddress();
-  const { donations: campaignDonations } = useCampaignDonations(id);
+  const { donations: campaignDonations, refetch: refetchDonations } = useCampaignDonations(id);
 
   const [donationAmount, setDonationAmount] = useState<string>('0.1');
   const [activeTab, setActiveTab] = useState<'about' | 'donors' | 'governance'>('about');
@@ -52,8 +52,9 @@ export default function CampaignDetailPage() {
     if (isDonateSuccess) {
       toast.success('Donation confirmed! Your NFT receipt has been minted. 🎉');
       refetch();
+      refetchDonations();
     }
-  }, [isDonateSuccess, toast, refetch]);
+  }, [isDonateSuccess, toast, refetch, refetchDonations]);
 
   React.useEffect(() => {
     if (isVoteSuccess) {

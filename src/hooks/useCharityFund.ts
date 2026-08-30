@@ -209,6 +209,7 @@ export function useCampaignDonations(campaignId: number) {
     args: [BigInt(campaignId)],
     query: {
       enabled: Boolean(fundAddress && campaignId > 0),
+      staleTime: 0,
       retry: 1,
       retryDelay: 2000,
     },
@@ -237,6 +238,7 @@ export function useUserDonations(userAddress?: `0x${string}`) {
     args: userAddress ? [userAddress] : undefined,
     query: {
       enabled: Boolean(fundAddress && userAddress),
+      staleTime: 0,
       retry: 1,
       retryDelay: 2000,
     },

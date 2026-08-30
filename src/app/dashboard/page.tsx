@@ -6,7 +6,7 @@ import { useAccount, useBalance, useChainId } from 'wagmi';
 import { useAllCampaigns, useDonorStats, useUserDonations } from '../../hooks/useCharityFund';
 import { useUserNFTTokens, useNFTReceipt } from '../../hooks/useCharityNFT';
 import { NFTReceiptCard } from '../../components/NFTReceiptCard';
-import { formatMnt, shortAddr, avatarStyle, initials, getDonorBadge, calcProgress, formatTimeLeft } from '../../utils/formatters';
+import { formatMnt, shortAddr, avatarStyle, initials, getDonorBadge, calcProgress, formatTimeLeft, getCampaignStatusBadge } from '../../utils/formatters';
 import { TARGET_CHAIN_ID } from '../../config/wagmi';
 
 export default function DashboardPage() {
@@ -170,7 +170,10 @@ export default function DashboardPage() {
                           <div className="card" style={{ padding: '1.5rem', cursor: 'pointer', height: '100%' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
                               <h3 style={{ fontSize: '1.1rem' }}>{c.title}</h3>
-                              <span className="badge badge-teal">{pct >= 100 ? 'Goal Met' : c.withdrawn ? 'Withdrawn' : 'Active'}</span>
+                              {(() => {
+                                const statusBadge = getCampaignStatusBadge(c);
+                                return <span className={`badge ${statusBadge.badgeCls}`}>{statusBadge.label}</span>;
+                              })()}
                             </div>
                             <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
                               {formatMnt(c.raised)} / {formatMnt(c.goal)} MNT raised ({pct}%)

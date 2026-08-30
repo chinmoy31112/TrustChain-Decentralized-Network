@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import { useAccount } from 'wagmi';
 import { useDonorStats, useAllCampaigns } from '../../hooks/useCharityFund';
 import { useUserNFTTokens } from '../../hooks/useCharityNFT';
-import { formatMnt, shortAddr, avatarStyle, initials, getDonorBadge, explorerAddress, calcProgress, formatTimeLeft } from '../../utils/formatters';
+import { formatMnt, shortAddr, avatarStyle, initials, getDonorBadge, explorerAddress, calcProgress, formatTimeLeft, getCampaignStatusBadge } from '../../utils/formatters';
 import { useToast } from '../../components/Toast';
 import { NFTReceiptCard } from '../../components/NFTReceiptCard';
 
@@ -192,7 +192,10 @@ function ProfileContent() {
                       <div className="card" style={{ padding: '1.5rem', height: '100%' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                           <h3>{c.title}</h3>
-                          <span className="badge badge-teal">{pct >= 100 ? 'Goal Met' : 'Active'}</span>
+                          {(() => {
+                            const statusBadge = getCampaignStatusBadge(c);
+                            return <span className={`badge ${statusBadge.badgeCls}`}>{statusBadge.label}</span>;
+                          })()}
                         </div>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1rem' }}>
                           {formatMnt(c.raised)} / {formatMnt(c.goal)} MNT ({pct}%)
